@@ -122,7 +122,7 @@ st.subheader("Filters")
 # App | Date | Created | Month | Partner Type
 # =========================================================
 
-col1, col2, col3, col4, col5 = st.columns(5)
+col1, col2, col3, col4 = st.columns(4)
 
 
 # ---------------------------------------------------------
@@ -173,47 +173,12 @@ with col2:
     )
 
 
-# ---------------------------------------------------------
-# CREATED
-# Calendar date range
-# ---------------------------------------------------------
-
-with col3:
-
-    created_option = st.selectbox(
-        "Created",
-        ["- Select -", "Select Date Range"]
-    )
-
-    created_start = None
-    created_end = None
-
-    if created_option == "Select Date Range":
-
-        date_range = st.date_input(
-            "Created Range",
-            value=None,
-            min_value=df["created"].min().date(),
-            max_value=df["created"].max().date(),
-            format="DD/MM/YYYY",
-            key="created_range"
-        )
-
-        if isinstance(date_range, tuple):
-
-            if len(date_range) == 2:
-                created_start = date_range[0]
-                created_end = date_range[1]
-
-            elif len(date_range) == 1:
-                created_start = date_range[0]
-
 
 # ---------------------------------------------------------
 # MONTH
 # ---------------------------------------------------------
 
-with col4:
+with col3:
 
     month_options = sorted(
         [
@@ -234,7 +199,7 @@ with col4:
 # PARTNER TYPE
 # ---------------------------------------------------------
 
-with col5:
+with col4:
 
     partner_type_options = sorted(
         [
@@ -456,186 +421,473 @@ with col14:
         default=[],
         placeholder="All"
     )
+# =========================================================
+# FILTER SECTION
+# =========================================================
 
+st.subheader("Filters")
 
 
 # =========================================================
-# APPLY FILTERS
+# HELPER FUNCTION
+# Creates data based on all OTHER selected filters
 # =========================================================
 
-filtered_df = df.copy()
+def get_context_df(exclude=None):
+
+    temp_df = df.copy()
+
+    # -----------------------------------------------------
+    # APP
+    # -----------------------------------------------------
+    if exclude != "App":
+        selected = st.session_state.get("app_filter", [])
+        if selected:
+            temp_df = temp_df[
+                temp_df["App"].isin(selected)
+            ]
+
+    # -----------------------------------------------------
+    # DATE
+    # Uses CREATED column
+    # -----------------------------------------------------
+    if exclude != "Date":
+        selected = st.session_state.get("date_filter", [])
+        if selected:
+            temp_df = temp_df[
+                temp_df["created"].dt.date.isin(selected)
+            ]
+
+    # -----------------------------------------------------
+    # MONTH
+    # -----------------------------------------------------
+    if exclude != "Month":
+        selected = st.session_state.get("month_filter", [])
+        if selected:
+            temp_df = temp_df[
+                temp_df["Month"].isin(selected)
+            ]
+
+    # -----------------------------------------------------
+    # PARTNER TYPE
+    # -----------------------------------------------------
+    if exclude != "Partner Type":
+        selected = st.session_state.get(
+            "partner_type_filter", []
+        )
+        if selected:
+            temp_df = temp_df[
+                temp_df["Partner Type"].isin(selected)
+            ]
+
+    # -----------------------------------------------------
+    # PARTNER
+    # -----------------------------------------------------
+    if exclude != "Partner":
+        selected = st.session_state.get(
+            "partner_filter", []
+        )
+        if selected:
+            temp_df = temp_df[
+                temp_df["Partner"].isin(selected)
+            ]
+
+    # -----------------------------------------------------
+    # AGENCY
+    # -----------------------------------------------------
+    if exclude != "Agency":
+        selected = st.session_state.get(
+            "agency_filter", []
+        )
+        if selected:
+            temp_df = temp_df[
+                temp_df["Agency"].isin(selected)
+            ]
+
+    # -----------------------------------------------------
+    # CAMPAIGN
+    # -----------------------------------------------------
+    if exclude != "Campaign":
+        selected = st.session_state.get(
+            "campaign_filter", []
+        )
+        if selected:
+            temp_df = temp_df[
+                temp_df["Campaign"].isin(selected)
+            ]
+
+    # -----------------------------------------------------
+    # PLAN
+    # -----------------------------------------------------
+    if exclude != "Plan":
+        selected = st.session_state.get(
+            "plan_filter", []
+        )
+        if selected:
+            temp_df = temp_df[
+                temp_df["Plan"].isin(selected)
+            ]
+
+    # -----------------------------------------------------
+    # CURRENCY
+    # -----------------------------------------------------
+    if exclude != "Currency":
+        selected = st.session_state.get(
+            "currency_filter", []
+        )
+        if selected:
+            temp_df = temp_df[
+                temp_df["currency"].isin(selected)
+            ]
+
+    # -----------------------------------------------------
+    # GWPROVIDER
+    # -----------------------------------------------------
+    if exclude != "Gwprovider":
+        selected = st.session_state.get(
+            "gwprovider_filter", []
+        )
+        if selected:
+            temp_df = temp_df[
+                temp_df["gwprovider"].isin(selected)
+            ]
+
+    # -----------------------------------------------------
+    # DEVICE TYPE
+    # -----------------------------------------------------
+    if exclude != "devicetype":
+        selected = st.session_state.get(
+            "device_filter", []
+        )
+        if selected:
+            temp_df = temp_df[
+                temp_df["devicetype"].isin(selected)
+            ]
+
+    # -----------------------------------------------------
+    # WEEK
+    # -----------------------------------------------------
+    if exclude != "Week":
+        selected = st.session_state.get(
+            "week_filter", []
+        )
+        if selected:
+            temp_df = temp_df[
+                temp_df["Week"].isin(selected)
+            ]
+
+    # -----------------------------------------------------
+    # STATUS
+    # Uses TRANSACTIONPURPOSE
+    # -----------------------------------------------------
+    if exclude != "Status":
+        selected = st.session_state.get(
+            "status_filter", []
+        )
+        if selected:
+            temp_df = temp_df[
+                temp_df["transactionpurpose"].isin(selected)
+            ]
+
+    return temp_df
+
+
+# =========================================================
+# ROW 1
+# App | Date | Month | Partner Type | Partner
+# =========================================================
+
+col1, col2, col3, col4, col5 = st.columns(5)
 
 
 # ---------------------------------------------------------
 # APP
-# Multiple selection = OR
 # ---------------------------------------------------------
 
-if app_filter:
+with col1:
 
-    filtered_df = filtered_df[
-        filtered_df["App"].isin(app_filter)
-    ]
+    app_options = sorted(
+        [
+            x for x in get_context_df("App")["App"].dropna().unique()
+            if x != ""
+        ]
+    )
+
+    app_filter = st.multiselect(
+        "App",
+        options=app_options,
+        key="app_filter",
+        placeholder="All"
+    )
 
 
 # ---------------------------------------------------------
 # DATE
-# Uses CREATED
-# Multiple selection = OR
-# ---------------------------------------------------------
-
-if date_filter:
-
-    filtered_df = filtered_df[
-        filtered_df["created"].dt.date.isin(date_filter)
-    ]
-
-
-# ---------------------------------------------------------
-# CREATED RANGE
-# ---------------------------------------------------------
-
-# ---------------------------------------------------------
-# CREATED RANGE
 # Uses CREATED column
+# Latest date first
 # ---------------------------------------------------------
 
-if created_start is not None and created_end is not None:
+with col2:
 
-    start_date = pd.Timestamp(created_start)
-    end_date = pd.Timestamp(created_end)
+    date_options = sorted(
+        get_context_df("Date")["created"]
+        .dropna()
+        .dt.date
+        .unique()
+        .tolist(),
+        reverse=True
+    )
 
-    filtered_df = filtered_df[
-        (filtered_df["created"] >= start_date) &
-        (filtered_df["created"] < end_date + pd.Timedelta(days=1))
-    ]
+    date_filter = st.multiselect(
+        "Date",
+        options=date_options,
+        key="date_filter",
+        format_func=lambda x: x.strftime("%d %b %Y"),
+        placeholder="All"
+    )
+
 
 # ---------------------------------------------------------
 # MONTH
 # ---------------------------------------------------------
 
-if month_filter:
+with col3:
 
-    filtered_df = filtered_df[
-        filtered_df["Month"].isin(month_filter)
-    ]
+    month_options = sorted(
+        [
+            x for x in get_context_df("Month")["Month"].dropna().unique()
+            if x != ""
+        ]
+    )
+
+    month_filter = st.multiselect(
+        "Month",
+        options=month_options,
+        key="month_filter",
+        placeholder="All"
+    )
 
 
 # ---------------------------------------------------------
 # PARTNER TYPE
 # ---------------------------------------------------------
 
-if partner_type_filter:
+with col4:
 
-    filtered_df = filtered_df[
-        filtered_df["Partner Type"].isin(
-            partner_type_filter
-        )
-    ]
+    partner_type_options = sorted(
+        [
+            x for x in get_context_df("Partner Type")[
+                "Partner Type"
+            ].dropna().unique()
+            if x != ""
+        ]
+    )
+
+    partner_type_filter = st.multiselect(
+        "Partner Type",
+        options=partner_type_options,
+        key="partner_type_filter",
+        placeholder="All"
+    )
 
 
 # ---------------------------------------------------------
 # PARTNER
 # ---------------------------------------------------------
 
-if partner_filter:
+with col5:
 
-    filtered_df = filtered_df[
-        filtered_df["Partner"].isin(
-            partner_filter
-        )
-    ]
+    partner_options = sorted(
+        [
+            x for x in get_context_df("Partner")[
+                "Partner"
+            ].dropna().unique()
+            if x != ""
+        ]
+    )
+
+    partner_filter = st.multiselect(
+        "Partner",
+        options=partner_options,
+        key="partner_filter",
+        placeholder="All"
+    )
+
+
+# =========================================================
+# ROW 2
+# Agency | Campaign | Plan | Currency | Gwprovider
+# =========================================================
+
+col6, col7, col8, col9, col10 = st.columns(5)
 
 
 # ---------------------------------------------------------
 # AGENCY
 # ---------------------------------------------------------
 
-if agency_filter:
+with col6:
 
-    filtered_df = filtered_df[
-        filtered_df["Agency"].isin(
-            agency_filter
-        )
-    ]
+    agency_options = sorted(
+        [
+            x for x in get_context_df("Agency")[
+                "Agency"
+            ].dropna().unique()
+            if x != ""
+        ]
+    )
+
+    agency_filter = st.multiselect(
+        "Agency",
+        options=agency_options,
+        key="agency_filter",
+        placeholder="All"
+    )
 
 
 # ---------------------------------------------------------
 # CAMPAIGN
 # ---------------------------------------------------------
 
-if campaign_filter:
+with col7:
 
-    filtered_df = filtered_df[
-        filtered_df["Campaign"].isin(
-            campaign_filter
-        )
-    ]
+    campaign_options = sorted(
+        [
+            x for x in get_context_df("Campaign")[
+                "Campaign"
+            ].dropna().unique()
+            if x != ""
+        ]
+    )
+
+    campaign_filter = st.multiselect(
+        "Campaign",
+        options=campaign_options,
+        key="campaign_filter",
+        placeholder="All"
+    )
 
 
 # ---------------------------------------------------------
 # PLAN
 # ---------------------------------------------------------
 
-if plan_filter:
+with col8:
 
-    filtered_df = filtered_df[
-        filtered_df["Plan"].isin(
-            plan_filter
-        )
-    ]
+    plan_options = sorted(
+        get_context_df("Plan")["Plan"]
+        .dropna()
+        .unique()
+        .tolist()
+    )
+
+    plan_filter = st.multiselect(
+        "Plan",
+        options=plan_options,
+        key="plan_filter",
+        format_func=lambda x: f"{x:g}",
+        placeholder="All"
+    )
 
 
 # ---------------------------------------------------------
 # CURRENCY
 # ---------------------------------------------------------
 
-if currency_filter:
+with col9:
 
-    filtered_df = filtered_df[
-        filtered_df["currency"].isin(
-            currency_filter
-        )
-    ]
+    currency_options = sorted(
+        [
+            x for x in get_context_df("Currency")[
+                "currency"
+            ].dropna().unique()
+            if x != ""
+        ]
+    )
+
+    currency_filter = st.multiselect(
+        "Currency",
+        options=currency_options,
+        key="currency_filter",
+        placeholder="All"
+    )
 
 
 # ---------------------------------------------------------
 # GWPROVIDER
 # ---------------------------------------------------------
 
-if gwprovider_filter:
+with col10:
 
-    filtered_df = filtered_df[
-        filtered_df["gwprovider"].isin(
-            gwprovider_filter
-        )
-    ]
+    gwprovider_options = sorted(
+        [
+            x for x in get_context_df("Gwprovider")[
+                "gwprovider"
+            ].dropna().unique()
+            if x != ""
+        ]
+    )
+
+    gwprovider_filter = st.multiselect(
+        "Gwprovider",
+        options=gwprovider_options,
+        key="gwprovider_filter",
+        placeholder="All"
+    )
+
+
+# =========================================================
+# ROW 3
+# Device Type | Week | Status
+# =========================================================
+
+col11, col12, col13 = st.columns(3)
 
 
 # ---------------------------------------------------------
-# DEVICE
+# DEVICE TYPE
 # ---------------------------------------------------------
 
-if device_filter:
+with col11:
 
-    filtered_df = filtered_df[
-        filtered_df["devicetype"].isin(
-            device_filter
-        )
-    ]
+    device_options = sorted(
+        [
+            x for x in get_context_df("devicetype")[
+                "devicetype"
+            ].dropna().unique()
+            if x != ""
+        ]
+    )
+
+    device_filter = st.multiselect(
+        "devicetype",
+        options=device_options,
+        key="device_filter",
+        placeholder="All"
+    )
 
 
 # ---------------------------------------------------------
 # WEEK
 # ---------------------------------------------------------
 
-if week_filter:
+with col12:
 
-    filtered_df = filtered_df[
-        filtered_df["Week"].isin(
-            week_filter
-        )
-    ]
+    week_options = sorted(
+        [
+            x for x in get_context_df("Week")[
+                "Week"
+            ].dropna().unique()
+            if x != ""
+        ]
+    )
+
+    week_filter = st.multiselect(
+        "Week",
+        options=week_options,
+        key="week_filter",
+        placeholder="All"
+    )
 
 
 # ---------------------------------------------------------
@@ -643,13 +895,31 @@ if week_filter:
 # Uses TRANSACTIONPURPOSE
 # ---------------------------------------------------------
 
-if status_filter:
+with col13:
 
-    filtered_df = filtered_df[
-        filtered_df["transactionpurpose"].isin(
-            status_filter
-        )
-    ]
+    status_options = sorted(
+        [
+            x for x in get_context_df("Status")[
+                "transactionpurpose"
+            ].dropna().unique()
+            if x != ""
+        ]
+    )
+
+    status_filter = st.multiselect(
+        "Status",
+        options=status_options,
+        key="status_filter",
+        placeholder="All"
+    )
+
+
+# =========================================================
+# FINAL FILTERED DATA
+# =========================================================
+
+filtered_df = get_context_df()
+
 
 
 # =========================================================

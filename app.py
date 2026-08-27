@@ -179,14 +179,29 @@ with col2:
 # ---------------------------------------------------------
 
 with col3:
-    created_range = st.date_input(
-        "Created",
-        value=(df["created"].min().date(), df["created"].max().date()),
-        min_value=df["created"].min().date(),
-        max_value=df["created"].max().date(),
-        format="DD/MM/YYYY",
-        key="created_filter"
-    )
+    created_filter = st.checkbox("Created", value=False)
+
+    if created_filter:
+        created_start = st.date_input(
+            "From",
+            value=None,
+            min_value=df["created"].min().date(),
+            max_value=df["created"].max().date(),
+            format="DD/MM/YYYY",
+            key="created_start"
+        )
+
+        created_end = st.date_input(
+            "To",
+            value=None,
+            min_value=df["created"].min().date(),
+            max_value=df["created"].max().date(),
+            format="DD/MM/YYYY",
+            key="created_end"
+        )
+    else:
+        created_start = None
+        created_end = None
 
 
 
@@ -476,17 +491,15 @@ if date_filter:
 # CREATED RANGE
 # ---------------------------------------------------------
 
-if len(created_range) == 2:
-
-    start_date = created_range[0]
-    end_date = created_range[1]
+# Apply Created date range
+if created_range and len(created_range) == 2:
+    start_date = pd.Timestamp(created_range[0])
+    end_date = pd.Timestamp(created_range[1])
 
     filtered_df = filtered_df[
-        (filtered_df["created"].dt.date >= start_date)
-        &
-        (filtered_df["created"].dt.date <= end_date)
+        (filtered_df["created"] >= start_date) &
+        (filtered_df["created"] < end_date + pd.Timedelta(days=1))
     ]
-
 
 # ---------------------------------------------------------
 # MONTH

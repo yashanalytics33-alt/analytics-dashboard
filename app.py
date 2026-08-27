@@ -179,14 +179,39 @@ with col2:
 # ---------------------------------------------------------
 
 with col3:
-
     created_range = st.date_input(
         "Created",
-        value=(),
+        value=None,
         min_value=df["created"].min().date(),
         max_value=df["created"].max().date(),
-        format="DD MMM YYYY"
+        format="DD MMM YYYY",
+        key="created_filter"
     )
+
+if created_range is not None:
+
+    if isinstance(created_range, tuple):
+
+        if len(created_range) == 2:
+            start_date = created_range[0]
+            end_date = created_range[1]
+
+            filtered_df = filtered_df[
+                (filtered_df["created"].dt.date >= start_date) &
+                (filtered_df["created"].dt.date <= end_date)
+            ]
+
+        elif len(created_range) == 1:
+            start_date = created_range[0]
+
+            filtered_df = filtered_df[
+                filtered_df["created"].dt.date >= start_date
+            ]
+
+    else:
+        filtered_df = filtered_df[
+            filtered_df["created"].dt.date == created_range
+        ]
 
 # ---------------------------------------------------------
 # MONTH

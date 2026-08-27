@@ -180,22 +180,13 @@ with col2:
 
 with col3:
 
-    if df["created"].notna().any():
-
-        min_created = df["created"].min().date()
-        max_created = df["created"].max().date()
-
-        created_range = st.date_input(
-            "Created",
-            value=(min_created, max_created),
-            min_value=min_created,
-            max_value=max_created
-        )
-
-    else:
-
-        created_range = ()
-
+    created_range = st.date_input(
+        "Created",
+        value=(),
+        min_value=df["created"].min().date(),
+        max_value=df["created"].max().date(),
+        format="DD MMM YYYY"
+    )
 
 # ---------------------------------------------------------
 # MONTH

@@ -27,4 +27,7 @@ st.subheader("Columns")
 st.write(list(df.columns))
 
 st.subheader("Sample Data")
-st.dataframe(df.head(10), use_container_width=True)
+st.dataframe(
+    df.head(10).astype(str),
+    use_container_width=True
+)

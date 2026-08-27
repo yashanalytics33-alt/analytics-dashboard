@@ -179,30 +179,34 @@ with col2:
 # ---------------------------------------------------------
 
 with col3:
-    created_filter = st.checkbox("Created", value=False)
 
-    if created_filter:
-        created_start = st.date_input(
-            "From",
+    created_option = st.selectbox(
+        "Created",
+        ["- Select -", "Select Date Range"]
+    )
+
+    created_start = None
+    created_end = None
+
+    if created_option == "Select Date Range":
+
+        date_range = st.date_input(
+            "Created Range",
             value=None,
             min_value=df["created"].min().date(),
             max_value=df["created"].max().date(),
             format="DD/MM/YYYY",
-            key="created_start"
+            key="created_range"
         )
 
-        created_end = st.date_input(
-            "To",
-            value=None,
-            min_value=df["created"].min().date(),
-            max_value=df["created"].max().date(),
-            format="DD/MM/YYYY",
-            key="created_end"
-        )
-    else:
-        created_start = None
-        created_end = None
+        if isinstance(date_range, tuple):
 
+            if len(date_range) == 2:
+                created_start = date_range[0]
+                created_end = date_range[1]
+
+            elif len(date_range) == 1:
+                created_start = date_range[0]
 
 
 # ---------------------------------------------------------
@@ -491,10 +495,15 @@ if date_filter:
 # CREATED RANGE
 # ---------------------------------------------------------
 
-# Apply Created date range
-if created_range and len(created_range) == 2:
-    start_date = pd.Timestamp(created_range[0])
-    end_date = pd.Timestamp(created_range[1])
+# ---------------------------------------------------------
+# CREATED RANGE
+# Uses CREATED column
+# ---------------------------------------------------------
+
+if created_start is not None and created_end is not None:
+
+    start_date = pd.Timestamp(created_start)
+    end_date = pd.Timestamp(created_end)
 
     filtered_df = filtered_df[
         (filtered_df["created"] >= start_date) &

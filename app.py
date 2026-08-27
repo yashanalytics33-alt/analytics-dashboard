@@ -2,6 +2,7 @@ import streamlit as st
 from streamlit_gsheets import GSheetsConnection
 import pandas as pd
 
+
 # =========================================================
 # PAGE SETTINGS
 # =========================================================
@@ -12,11 +13,24 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("📊 Subscription Analytics Dashboard")
+
+# =========================================================
+# HEADER + REFRESH BUTTON
+# =========================================================
+
+header_col1, header_col2 = st.columns([6, 1])
+
+with header_col1:
+    st.title("📊 Subscription Analytics Dashboard")
+
+with header_col2:
+    if st.button("🔄 Refresh"):
+        st.cache_data.clear()
+        st.rerun()
 
 
 # =========================================================
-# CONNECT TO GOOGLE SHEETS
+# GOOGLE SHEETS CONNECTION
 # =========================================================
 
 conn = st.connection(
@@ -55,15 +69,25 @@ df["currency"] = (
     .str.upper()
 )
 
-df["App"] = df["App"].astype(str).str.strip()
-df["Month"] = df["Month"].astype(str).str.strip()
-df["Partner Type"] = df["Partner Type"].astype(str).str.strip()
-df["Partner"] = df["Partner"].astype(str).str.strip()
-df["Agency"] = df["Agency"].astype(str).str.strip()
-df["Campaign"] = df["Campaign"].astype(str).str.strip()
-df["gwprovider"] = df["gwprovider"].astype(str).str.strip()
-df["devicetype"] = df["devicetype"].astype(str).str.strip()
-df["Week"] = df["Week"].astype(str).str.strip()
+text_columns = [
+    "App",
+    "Month",
+    "Partner Type",
+    "Partner",
+    "Agency",
+    "Campaign",
+    "gwprovider",
+    "devicetype",
+    "Week"
+]
+
+for column in text_columns:
+    df[column] = (
+        df[column]
+        .fillna("")
+        .astype(str)
+        .str.strip()
+    )
 
 
 # =========================================================
@@ -108,21 +132,25 @@ col1, col2, col3, col4, col5 = st.columns(5)
 with col1:
 
     app_options = sorted(
-        df["App"]
-        .dropna()
-        .unique()
-        .tolist()
+        [
+            x for x in df["App"].dropna().unique()
+            if x != ""
+        ]
     )
 
-    app_filter = st.selectbox(
+    app_filter = st.multiselect(
         "App",
-        ["All"] + app_options
+        options=app_options,
+        default=[],
+        placeholder="All"
     )
 
 
 # ---------------------------------------------------------
 # DATE
-# Specific date from CREATED column
+# Uses CREATED
+# Latest date first
+# Multiple dates allowed
 # ---------------------------------------------------------
 
 with col2:
@@ -132,18 +160,22 @@ with col2:
         .dropna()
         .dt.date
         .unique()
-        .tolist()
+        .tolist(),
+        reverse=True
     )
 
-    date_filter = st.selectbox(
+    date_filter = st.multiselect(
         "Date",
-        ["All"] + date_options
+        options=date_options,
+        default=[],
+        format_func=lambda x: x.strftime("%d %b %Y"),
+        placeholder="All"
     )
 
 
 # ---------------------------------------------------------
 # CREATED
-# Calendar date range from CREATED column
+# Calendar date range
 # ---------------------------------------------------------
 
 with col3:
@@ -172,15 +204,17 @@ with col3:
 with col4:
 
     month_options = sorted(
-        df["Month"]
-        .dropna()
-        .unique()
-        .tolist()
+        [
+            x for x in df["Month"].unique()
+            if x != ""
+        ]
     )
 
-    month_filter = st.selectbox(
+    month_filter = st.multiselect(
         "Month",
-        ["All"] + month_options
+        options=month_options,
+        default=[],
+        placeholder="All"
     )
 
 
@@ -191,15 +225,17 @@ with col4:
 with col5:
 
     partner_type_options = sorted(
-        df["Partner Type"]
-        .dropna()
-        .unique()
-        .tolist()
+        [
+            x for x in df["Partner Type"].unique()
+            if x != ""
+        ]
     )
 
-    partner_type_filter = st.selectbox(
+    partner_type_filter = st.multiselect(
         "Partner Type",
-        ["All"] + partner_type_options
+        options=partner_type_options,
+        default=[],
+        placeholder="All"
     )
 
 
@@ -218,15 +254,17 @@ col6, col7, col8, col9, col10 = st.columns(5)
 with col6:
 
     partner_options = sorted(
-        df["Partner"]
-        .dropna()
-        .unique()
-        .tolist()
+        [
+            x for x in df["Partner"].unique()
+            if x != ""
+        ]
     )
 
-    partner_filter = st.selectbox(
+    partner_filter = st.multiselect(
         "Partner",
-        ["All"] + partner_options
+        options=partner_options,
+        default=[],
+        placeholder="All"
     )
 
 
@@ -237,15 +275,17 @@ with col6:
 with col7:
 
     agency_options = sorted(
-        df["Agency"]
-        .dropna()
-        .unique()
-        .tolist()
+        [
+            x for x in df["Agency"].unique()
+            if x != ""
+        ]
     )
 
-    agency_filter = st.selectbox(
+    agency_filter = st.multiselect(
         "Agency",
-        ["All"] + agency_options
+        options=agency_options,
+        default=[],
+        placeholder="All"
     )
 
 
@@ -256,15 +296,17 @@ with col7:
 with col8:
 
     campaign_options = sorted(
-        df["Campaign"]
-        .dropna()
-        .unique()
-        .tolist()
+        [
+            x for x in df["Campaign"].unique()
+            if x != ""
+        ]
     )
 
-    campaign_filter = st.selectbox(
+    campaign_filter = st.multiselect(
         "Campaign",
-        ["All"] + campaign_options
+        options=campaign_options,
+        default=[],
+        placeholder="All"
     )
 
 
@@ -281,9 +323,12 @@ with col9:
         .tolist()
     )
 
-    plan_filter = st.selectbox(
+    plan_filter = st.multiselect(
         "Plan",
-        ["All"] + plan_options
+        options=plan_options,
+        default=[],
+        format_func=lambda x: f"{x:g}",
+        placeholder="All"
     )
 
 
@@ -294,15 +339,17 @@ with col9:
 with col10:
 
     currency_options = sorted(
-        df["currency"]
-        .dropna()
-        .unique()
-        .tolist()
+        [
+            x for x in df["currency"].unique()
+            if x != ""
+        ]
     )
 
-    currency_filter = st.selectbox(
+    currency_filter = st.multiselect(
         "Currency",
-        ["All"] + currency_options
+        options=currency_options,
+        default=[],
+        placeholder="All"
     )
 
 
@@ -321,15 +368,17 @@ col11, col12, col13, col14 = st.columns(4)
 with col11:
 
     gwprovider_options = sorted(
-        df["gwprovider"]
-        .dropna()
-        .unique()
-        .tolist()
+        [
+            x for x in df["gwprovider"].unique()
+            if x != ""
+        ]
     )
 
-    gwprovider_filter = st.selectbox(
+    gwprovider_filter = st.multiselect(
         "Gwprovider",
-        ["All"] + gwprovider_options
+        options=gwprovider_options,
+        default=[],
+        placeholder="All"
     )
 
 
@@ -340,15 +389,17 @@ with col11:
 with col12:
 
     device_options = sorted(
-        df["devicetype"]
-        .dropna()
-        .unique()
-        .tolist()
+        [
+            x for x in df["devicetype"].unique()
+            if x != ""
+        ]
     )
 
-    device_filter = st.selectbox(
+    device_filter = st.multiselect(
         "devicetype",
-        ["All"] + device_options
+        options=device_options,
+        default=[],
+        placeholder="All"
     )
 
 
@@ -359,36 +410,39 @@ with col12:
 with col13:
 
     week_options = sorted(
-        df["Week"]
-        .dropna()
-        .unique()
-        .tolist()
+        [
+            x for x in df["Week"].unique()
+            if x != ""
+        ]
     )
 
-    week_filter = st.selectbox(
+    week_filter = st.multiselect(
         "Week",
-        ["All"] + week_options
+        options=week_options,
+        default=[],
+        placeholder="All"
     )
 
 
 # ---------------------------------------------------------
 # STATUS
-# IMPORTANT:
-# STATUS USES TRANSACTIONPURPOSE
+# Uses TRANSACTIONPURPOSE
 # ---------------------------------------------------------
 
 with col14:
 
     status_options = sorted(
-        df["transactionpurpose"]
-        .dropna()
-        .unique()
-        .tolist()
+        [
+            x for x in df["transactionpurpose"].unique()
+            if x != ""
+        ]
     )
 
-    status_filter = st.selectbox(
+    status_filter = st.multiselect(
         "Status",
-        ["All"] + status_options
+        options=status_options,
+        default=[],
+        placeholder="All"
     )
 
 
@@ -401,30 +455,31 @@ filtered_df = df.copy()
 
 # ---------------------------------------------------------
 # APP
+# Multiple selection = OR
 # ---------------------------------------------------------
 
-if app_filter != "All":
+if app_filter:
 
     filtered_df = filtered_df[
-        filtered_df["App"] == app_filter
+        filtered_df["App"].isin(app_filter)
     ]
 
 
 # ---------------------------------------------------------
 # DATE
 # Uses CREATED
+# Multiple selection = OR
 # ---------------------------------------------------------
 
-if date_filter != "All":
+if date_filter:
 
     filtered_df = filtered_df[
-        filtered_df["created"].dt.date == date_filter
+        filtered_df["created"].dt.date.isin(date_filter)
     ]
 
 
 # ---------------------------------------------------------
 # CREATED RANGE
-# Uses CREATED
 # ---------------------------------------------------------
 
 if len(created_range) == 2:
@@ -443,10 +498,10 @@ if len(created_range) == 2:
 # MONTH
 # ---------------------------------------------------------
 
-if month_filter != "All":
+if month_filter:
 
     filtered_df = filtered_df[
-        filtered_df["Month"] == month_filter
+        filtered_df["Month"].isin(month_filter)
     ]
 
 
@@ -454,10 +509,12 @@ if month_filter != "All":
 # PARTNER TYPE
 # ---------------------------------------------------------
 
-if partner_type_filter != "All":
+if partner_type_filter:
 
     filtered_df = filtered_df[
-        filtered_df["Partner Type"] == partner_type_filter
+        filtered_df["Partner Type"].isin(
+            partner_type_filter
+        )
     ]
 
 
@@ -465,10 +522,12 @@ if partner_type_filter != "All":
 # PARTNER
 # ---------------------------------------------------------
 
-if partner_filter != "All":
+if partner_filter:
 
     filtered_df = filtered_df[
-        filtered_df["Partner"] == partner_filter
+        filtered_df["Partner"].isin(
+            partner_filter
+        )
     ]
 
 
@@ -476,10 +535,12 @@ if partner_filter != "All":
 # AGENCY
 # ---------------------------------------------------------
 
-if agency_filter != "All":
+if agency_filter:
 
     filtered_df = filtered_df[
-        filtered_df["Agency"] == agency_filter
+        filtered_df["Agency"].isin(
+            agency_filter
+        )
     ]
 
 
@@ -487,10 +548,12 @@ if agency_filter != "All":
 # CAMPAIGN
 # ---------------------------------------------------------
 
-if campaign_filter != "All":
+if campaign_filter:
 
     filtered_df = filtered_df[
-        filtered_df["Campaign"] == campaign_filter
+        filtered_df["Campaign"].isin(
+            campaign_filter
+        )
     ]
 
 
@@ -498,10 +561,12 @@ if campaign_filter != "All":
 # PLAN
 # ---------------------------------------------------------
 
-if plan_filter != "All":
+if plan_filter:
 
     filtered_df = filtered_df[
-        filtered_df["Plan"] == plan_filter
+        filtered_df["Plan"].isin(
+            plan_filter
+        )
     ]
 
 
@@ -509,10 +574,12 @@ if plan_filter != "All":
 # CURRENCY
 # ---------------------------------------------------------
 
-if currency_filter != "All":
+if currency_filter:
 
     filtered_df = filtered_df[
-        filtered_df["currency"] == currency_filter
+        filtered_df["currency"].isin(
+            currency_filter
+        )
     ]
 
 
@@ -520,10 +587,12 @@ if currency_filter != "All":
 # GWPROVIDER
 # ---------------------------------------------------------
 
-if gwprovider_filter != "All":
+if gwprovider_filter:
 
     filtered_df = filtered_df[
-        filtered_df["gwprovider"] == gwprovider_filter
+        filtered_df["gwprovider"].isin(
+            gwprovider_filter
+        )
     ]
 
 
@@ -531,10 +600,12 @@ if gwprovider_filter != "All":
 # DEVICE
 # ---------------------------------------------------------
 
-if device_filter != "All":
+if device_filter:
 
     filtered_df = filtered_df[
-        filtered_df["devicetype"] == device_filter
+        filtered_df["devicetype"].isin(
+            device_filter
+        )
     ]
 
 
@@ -542,10 +613,12 @@ if device_filter != "All":
 # WEEK
 # ---------------------------------------------------------
 
-if week_filter != "All":
+if week_filter:
 
     filtered_df = filtered_df[
-        filtered_df["Week"] == week_filter
+        filtered_df["Week"].isin(
+            week_filter
+        )
     ]
 
 
@@ -554,10 +627,12 @@ if week_filter != "All":
 # Uses TRANSACTIONPURPOSE
 # ---------------------------------------------------------
 
-if status_filter != "All":
+if status_filter:
 
     filtered_df = filtered_df[
-        filtered_df["transactionpurpose"] == status_filter
+        filtered_df["transactionpurpose"].isin(
+            status_filter
+        )
     ]
 
 
@@ -582,8 +657,7 @@ total_subscriptions = (
 
 # =========================================================
 # REVENUE
-# INR ONLY
-# PLAN COLUMN
+# INR ONLY + PLAN
 # =========================================================
 
 inr_data = filtered_df[

@@ -439,15 +439,6 @@ with col14:
     )
 
 
-# Created date range filter
-if isinstance(created_range, tuple) and len(created_range) == 2:
-    start_date = created_range[0]
-    end_date = created_range[1]
-
-    filtered_df = filtered_df[
-        (filtered_df["created"].dt.date >= start_date) &
-        (filtered_df["created"].dt.date <= end_date)
-    ]
 
 # =========================================================
 # APPLY FILTERS

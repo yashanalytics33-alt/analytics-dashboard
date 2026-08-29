@@ -978,3 +978,170 @@ with chart_col2:
         st.info(
             "No renewed subscriptions for the selected filters."
         )
+
+# =========================================================
+# AGENCY CHARTS
+# =========================================================
+
+
+# =========================================================
+# NEW SUBSCRIPTIONS CONTRIBUTION % BY AGENCY
+# =========================================================
+
+new_agency_df = filtered_df[
+    filtered_df["transactionpurpose"] == "NEW"
+].copy()
+
+
+new_agency = (
+    new_agency_df
+    .groupby("Agency")
+    .size()
+    .reset_index(name="Subscriptions")
+    .sort_values("Subscriptions", ascending=False)
+)
+
+
+# Remove blank agencies
+new_agency = new_agency[
+    new_agency["Agency"].str.strip() != ""
+]
+
+
+if not new_agency.empty:
+
+    fig_new_agency = px.pie(
+        new_agency,
+        names="Agency",
+        values="Subscriptions",
+        title="New Subscriptions Contribution % By Agency"
+    )
+
+    fig_new_agency.update_traces(
+        texttemplate="%{percent:.1%}",
+        textposition="inside",
+        hovertemplate=(
+            "<b>%{label}</b><br>"
+            "Subscriptions: %{value:,}<br>"
+            "Contribution: %{percent:.1%}"
+            "<extra></extra>"
+        ),
+        sort=False
+    )
+
+    fig_new_agency.update_layout(
+        margin=dict(
+            l=20,
+            r=20,
+            t=60,
+            b=20
+        ),
+        legend=dict(
+            title="Agency"
+        )
+    )
+
+else:
+
+    fig_new_agency = None
+
+
+# =========================================================
+# RENEWED SUBSCRIPTIONS CONTRIBUTION % BY AGENCY
+# =========================================================
+
+renew_agency_df = filtered_df[
+    filtered_df["transactionpurpose"] == "RENEW"
+].copy()
+
+
+renew_agency = (
+    renew_agency_df
+    .groupby("Agency")
+    .size()
+    .reset_index(name="Subscriptions")
+    .sort_values("Subscriptions", ascending=False)
+)
+
+
+# Remove blank agencies
+renew_agency = renew_agency[
+    renew_agency["Agency"].str.strip() != ""
+]
+
+
+if not renew_agency.empty:
+
+    fig_renew_agency = px.pie(
+        renew_agency,
+        names="Agency",
+        values="Subscriptions",
+        title="Renewed Subscriptions Contribution % By Agency"
+    )
+
+    fig_renew_agency.update_traces(
+        texttemplate="%{percent:.1%}",
+        textposition="inside",
+        hovertemplate=(
+            "<b>%{label}</b><br>"
+            "Subscriptions: %{value:,}<br>"
+            "Contribution: %{percent:.1%}"
+            "<extra></extra>"
+        ),
+        sort=False
+    )
+
+    fig_renew_agency.update_layout(
+        margin=dict(
+            l=20,
+            r=20,
+            t=60,
+            b=20
+        ),
+        legend=dict(
+            title="Agency"
+        )
+    )
+
+else:
+
+    fig_renew_agency = None
+
+
+# =========================================================
+# DISPLAY AGENCY CHARTS
+# =========================================================
+
+agency_col1, agency_col2 = st.columns(2)
+
+
+with agency_col1:
+
+    if fig_new_agency is not None:
+
+        st.plotly_chart(
+            fig_new_agency,
+            use_container_width=True
+        )
+
+    else:
+
+        st.info(
+            "No new subscriptions for the selected filters."
+        )
+
+
+with agency_col2:
+
+    if fig_renew_agency is not None:
+
+        st.plotly_chart(
+            fig_renew_agency,
+            use_container_width=True
+        )
+
+    else:
+
+        st.info(
+            "No renewed subscriptions for the selected filters."
+        )

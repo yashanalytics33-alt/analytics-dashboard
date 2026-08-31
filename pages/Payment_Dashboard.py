@@ -30,24 +30,23 @@ with header_col2:
 
 
 # =========================================================
-# GOOGLE SHEETS CONNECTION
+# PAYMENT GOOGLE SHEETS CONNECTION
 # =========================================================
 
-conn = st.connection(
-    "gsheets",
+payment_conn = st.connection(
+    "gsheets_payment",
     type=GSheetsConnection
 )
 
 
 # =========================================================
-# LOAD DATA
+# LOAD PAYMENT REPORT
 # =========================================================
 
-df = conn.read(
+df = payment_conn.read(
     worksheet="payment report",
     ttl=600
 )
-
 
 # =========================================================
 # CLEAN COLUMN NAMES

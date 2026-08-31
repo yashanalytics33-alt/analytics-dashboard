@@ -814,3 +814,59 @@ with chart_col2:
         st.info(
             "No renewed subscriptions for the selected filters."
         )
+
+# =========================================================
+# NEW VS RENEW SUBSCRIPTIONS BY PARTNER TYPE
+# =========================================================
+
+comparison_df = filtered_df[
+    filtered_df["transactionpurpose"].isin(["NEW", "RENEW"])
+].copy()
+
+comparison_chart = (
+    comparison_df
+    .groupby(["Partner Type", "transactionpurpose"])
+    .size()
+    .reset_index(name="Subscriptions")
+)
+
+if not comparison_chart.empty:
+
+    fig_comparison = px.bar(
+        comparison_chart,
+        x="Partner Type",
+        y="Subscriptions",
+        color="transactionpurpose",
+        barmode="group",
+        title="New vs Renew Subscriptions by Partner Type",
+        labels={
+            "Partner Type": "Partner Type",
+            "Subscriptions": "Subscriptions",
+            "transactionpurpose": "Status"
+        }
+    )
+
+    fig_comparison.update_traces(
+        hovertemplate=(
+            "<b>%{x}</b><br>"
+            "Subscriptions: %{y:,}"
+            "<extra>%{fullData.name}</extra>"
+        )
+    )
+
+    fig_comparison.update_layout(
+        legend_title_text="Status"
+    )
+
+    st.divider()
+
+    st.plotly_chart(
+        fig_comparison,
+        use_container_width=True
+    )
+
+else:
+
+    st.info(
+        "No subscription data available for the selected filters."
+    )

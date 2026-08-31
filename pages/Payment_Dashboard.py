@@ -15,9 +15,8 @@ st.title("💳 Payment Dashboard")
 # =========================================================
 
 conn = st.connection(
-    "payment_gsheets",
-    type=GSheetsConnection,
-    spreadsheet="https://docs.google.com/spreadsheets/d/1jin_QZwN7G1nwXebnWvs6rcged5xnggxefghpjehlfc/edit"
+    "gsheets",
+    type=GSheetsConnection
 )
 
 
@@ -26,26 +25,37 @@ conn = st.connection(
 # =========================================================
 
 payment_df = conn.read(
+    spreadsheet="https://docs.google.com/spreadsheets/d/1jin_QZwN7G1nwXebnWvs6rcged5xnggxefghpjehlfc/edit",
     worksheet="payment report",
     ttl=600
 )
 
 
 # =========================================================
-# BASIC CLEANING
+# CLEAN COLUMN NAMES
 # =========================================================
 
 payment_df.columns = payment_df.columns.str.strip()
 
 
 # =========================================================
-# SHOW DATA
+# TITLE / SUCCESS
 # =========================================================
 
 st.success("Payment data loaded successfully!")
 
-st.write("Rows:", len(payment_df))
-st.write("Columns:", len(payment_df.columns))
+
+# =========================================================
+# BASIC INFORMATION
+# =========================================================
+
+st.write(f"**Total Rows:** {len(payment_df):,}")
+st.write(f"**Total Columns:** {len(payment_df.columns):,}")
+
+
+# =========================================================
+# SHOW DATA
+# =========================================================
 
 st.dataframe(
     payment_df,

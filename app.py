@@ -696,4 +696,4 @@ st.write(
     f"**Filtered rows:** {len(filtered_df):,}"
 )
 
-st.success("Dashboard code reached the end successfully")
+

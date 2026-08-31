@@ -840,3 +840,135 @@ with chart_col2:
         st.info(
             "No renewed subscriptions for the selected filters."
         )
+
+
+# =========================================================
+# PARTNER TYPE CHARTS
+# =========================================================
+
+import plotly.express as px
+
+
+# ---------------------------------------------------------
+# NEW SUBSCRIPTIONS - PARTNER TYPE
+# ---------------------------------------------------------
+
+pt_new = filtered_df[
+    filtered_df["transactionpurpose"] == "NEW"
+]
+
+pt_new = (
+    pt_new
+    .groupby("Partner Type")
+    .size()
+    .reset_index(name="Subscriptions")
+)
+
+if len(pt_new) > 0:
+
+    chart_pt_new = px.pie(
+        pt_new,
+        names="Partner Type",
+        values="Subscriptions",
+        title="New Subscriptions Contribution % By Partner Type"
+    )
+
+    chart_pt_new.update_traces(
+        texttemplate="%{percent:.1%}",
+        textposition="inside",
+        hovertemplate=(
+            "<b>%{label}</b><br>"
+            "Subscriptions: %{value:,}<br>"
+            "Contribution: %{percent:.1%}"
+            "<extra></extra>"
+        )
+    )
+
+    chart_pt_new.update_layout(
+        legend_title_text="Partner Type",
+        margin=dict(l=10, r=10, t=50, b=10)
+    )
+
+else:
+
+    chart_pt_new = None
+
+
+# ---------------------------------------------------------
+# RENEWED SUBSCRIPTIONS - PARTNER TYPE
+# ---------------------------------------------------------
+
+pt_renew = filtered_df[
+    filtered_df["transactionpurpose"] == "RENEW"
+]
+
+pt_renew = (
+    pt_renew
+    .groupby("Partner Type")
+    .size()
+    .reset_index(name="Subscriptions")
+)
+
+if len(pt_renew) > 0:
+
+    chart_pt_renew = px.pie(
+        pt_renew,
+        names="Partner Type",
+        values="Subscriptions",
+        title="Renewed Subscriptions Contribution % By Partner Type"
+    )
+
+    chart_pt_renew.update_traces(
+        texttemplate="%{percent:.1%}",
+        textposition="inside",
+        hovertemplate=(
+            "<b>%{label}</b><br>"
+            "Subscriptions: %{value:,}<br>"
+            "Contribution: %{percent:.1%}"
+            "<extra></extra>"
+        )
+    )
+
+    chart_pt_renew.update_layout(
+        legend_title_text="Partner Type",
+        margin=dict(l=10, r=10, t=50, b=10)
+    )
+
+else:
+
+    chart_pt_renew = None
+
+
+# =========================================================
+# DISPLAY PARTNER TYPE CHARTS
+# =========================================================
+
+pt_col1, pt_col2 = st.columns(2)
+
+
+with pt_col1:
+
+    if chart_pt_new is not None:
+
+        st.plotly_chart(
+            chart_pt_new,
+            use_container_width=True
+        )
+
+    else:
+
+        st.info("No new subscriptions.")
+
+
+with pt_col2:
+
+    if chart_pt_renew is not None:
+
+        st.plotly_chart(
+            chart_pt_renew,
+            use_container_width=True
+        )
+
+    else:
+
+        st.info("No renewed subscriptions.")

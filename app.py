@@ -697,107 +697,117 @@ st.write(
 )
 
 # =========================================================
-# CHARTS
-# =========================================================
-
-import plotly.express as px
-
-
-# =========================================================
 # NEW SUBSCRIPTIONS BY PARTNER TYPE
 # =========================================================
 
-new_chart_df = filtered_df[
+new_partner_type_df = filtered_df[
     filtered_df["transactionpurpose"] == "NEW"
 ].copy()
 
 new_partner_type = (
-    new_chart_df
+    new_partner_type_df
     .groupby("Partner Type")
     .size()
     .reset_index(name="Subscriptions")
+    .sort_values("Subscriptions", ascending=False)
 )
 
 if not new_partner_type.empty:
 
-    fig_new = px.pie(
+    fig_new_partner_type = px.pie(
         new_partner_type,
         names="Partner Type",
         values="Subscriptions",
-        title="New Subscriptions Contribution % by Partner Type"
+        title="New Subscriptions Contribution % By Partner Type"
     )
 
-    fig_new.update_traces(
+    fig_new_partner_type.update_traces(
         texttemplate="%{percent:.1%}",
+        textposition="inside",
         hovertemplate=(
             "<b>%{label}</b><br>"
             "Subscriptions: %{value:,}<br>"
             "Contribution: %{percent:.1%}"
             "<extra></extra>"
-        )
+        ),
+        sort=False
+    )
+
+    fig_new_partner_type.update_layout(
+        legend_title_text="Partner Type",
+        margin=dict(l=10, r=10, t=50, b=10)
     )
 
 else:
 
-    fig_new = None
+    fig_new_partner_type = None
 
 
 # =========================================================
 # RENEWED SUBSCRIPTIONS BY PARTNER TYPE
 # =========================================================
 
-renew_chart_df = filtered_df[
+renew_partner_type_df = filtered_df[
     filtered_df["transactionpurpose"] == "RENEW"
 ].copy()
 
 renew_partner_type = (
-    renew_chart_df
+    renew_partner_type_df
     .groupby("Partner Type")
     .size()
     .reset_index(name="Subscriptions")
+    .sort_values("Subscriptions", ascending=False)
 )
 
 if not renew_partner_type.empty:
 
-    fig_renew = px.pie(
+    fig_renew_partner_type = px.pie(
         renew_partner_type,
         names="Partner Type",
         values="Subscriptions",
-        title="Renewed Subscriptions Contribution % by Partner Type"
+        title="Renewed Subscriptions Contribution % By Partner Type"
     )
 
-    fig_renew.update_traces(
+    fig_renew_partner_type.update_traces(
         texttemplate="%{percent:.1%}",
+        textposition="inside",
         hovertemplate=(
             "<b>%{label}</b><br>"
             "Subscriptions: %{value:,}<br>"
             "Contribution: %{percent:.1%}"
             "<extra></extra>"
-        )
+        ),
+        sort=False
+    )
+
+    fig_renew_partner_type.update_layout(
+        legend_title_text="Partner Type",
+        margin=dict(l=10, r=10, t=50, b=10)
     )
 
 else:
 
-    fig_renew = None
+    fig_renew_partner_type = None
 
 
 # =========================================================
-# DISPLAY CHARTS
+# DISPLAY PARTNER TYPE CHARTS
 # =========================================================
-
-st.divider()
 
 chart_col1, chart_col2 = st.columns(2)
 
 
 with chart_col1:
 
-    if fig_new is not None:
+    if fig_new_partner_type is not None:
+
         st.plotly_chart(
-            fig_new,
+            fig_new_partner_type,
             use_container_width=True
         )
+
     else:
+
         st.info(
             "No new subscriptions for the selected filters."
         )
@@ -805,16 +815,18 @@ with chart_col1:
 
 with chart_col2:
 
-    if fig_renew is not None:
+    if fig_renew_partner_type is not None:
+
         st.plotly_chart(
-            fig_renew,
+            fig_renew_partner_type,
             use_container_width=True
         )
+
     else:
+
         st.info(
             "No renewed subscriptions for the selected filters."
         )
-
 
 
 

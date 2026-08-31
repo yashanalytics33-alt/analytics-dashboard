@@ -36,7 +36,7 @@ conn = st.connection(
 # =========================================================
 
 payment_df = conn.read(
-    spreadsheet="https://docs.google.com/spreadsheets/d/1jin_QZwN7G1nwXebnWvs6rcged5xnggxefghpjehlfc/edit",
+    spreadsheet="Renew and Subscribed Report",
     worksheet="payment report",
     ttl=600
 )
@@ -54,10 +54,15 @@ payment_df.columns = (
 
 
 # =========================================================
-# BASIC CHECK
+# SUCCESS
 # =========================================================
 
 st.success("Payment data loaded successfully ✅")
+
+
+# =========================================================
+# BASIC INFORMATION
+# =========================================================
 
 st.write(f"**Total rows:** {len(payment_df):,}")
 

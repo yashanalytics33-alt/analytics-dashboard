@@ -858,3 +858,64 @@ else:
     avg_daily_total = 0
     avg_daily_new = 0
     avg_daily_renew = 0
+
+# =========================================================
+# AVERAGE KPI CARDS
+# =========================================================
+
+st.divider()
+
+# ROW 1
+avg1, avg2, avg3, avg4 = st.columns(4)
+
+with avg1:
+    st.metric(
+        "Avg Monthly Revenue (INR)",
+        f"₹{avg_monthly_revenue/100000:.2f}L"
+    )
+
+with avg2:
+    st.metric(
+        "Avg Monthly Total Subscribers",
+        f"{avg_monthly_total/1000:.2f}K"
+    )
+
+with avg3:
+    st.metric(
+        "Avg Monthly New Subscribers",
+        f"{avg_monthly_new/1000:.2f}K"
+    )
+
+with avg4:
+    st.metric(
+        "Avg Monthly Renew Subscribers",
+        f"{avg_monthly_renew/1000:.2f}K"
+    )
+
+
+# ROW 2
+avg5, avg6, avg7, avg8 = st.columns(4)
+
+with avg5:
+    st.metric(
+        "Avg Daily Revenue (INR)",
+        f"₹{avg_daily_revenue/1000:.2f}K"
+    )
+
+with avg6:
+    st.metric(
+        "Avg Daily Total Subscribers",
+        f"{avg_daily_total:,.2f}"
+    )
+
+with avg7:
+    st.metric(
+        "Avg Daily New Subscribers",
+        f"{avg_daily_new:,.2f}"
+    )
+
+with avg8:
+    st.metric(
+        "Avg Daily Renew Subscribers",
+        f"{avg_daily_renew:,.2f}"
+    )

@@ -696,4 +696,121 @@ st.write(
     f"**Filtered rows:** {len(filtered_df):,}"
 )
 
+# =========================================================
+# CHARTS
+# =========================================================
 
+import plotly.express as px
+
+
+# =========================================================
+# NEW SUBSCRIPTIONS BY PARTNER TYPE
+# =========================================================
+
+new_chart_df = filtered_df[
+    filtered_df["transactionpurpose"] == "NEW"
+].copy()
+
+new_partner_type = (
+    new_chart_df
+    .groupby("Partner Type")
+    .size()
+    .reset_index(name="Subscriptions")
+)
+
+if not new_partner_type.empty:
+
+    fig_new = px.pie(
+        new_partner_type,
+        names="Partner Type",
+        values="Subscriptions",
+        title="New Subscriptions Contribution % by Partner Type"
+    )
+
+    fig_new.update_traces(
+        texttemplate="%{percent:.1%}",
+        hovertemplate=(
+            "<b>%{label}</b><br>"
+            "Subscriptions: %{value:,}<br>"
+            "Contribution: %{percent:.1%}"
+            "<extra></extra>"
+        )
+    )
+
+else:
+
+    fig_new = None
+
+
+# =========================================================
+# RENEWED SUBSCRIPTIONS BY PARTNER TYPE
+# =========================================================
+
+renew_chart_df = filtered_df[
+    filtered_df["transactionpurpose"] == "RENEW"
+].copy()
+
+renew_partner_type = (
+    renew_chart_df
+    .groupby("Partner Type")
+    .size()
+    .reset_index(name="Subscriptions")
+)
+
+if not renew_partner_type.empty:
+
+    fig_renew = px.pie(
+        renew_partner_type,
+        names="Partner Type",
+        values="Subscriptions",
+        title="Renewed Subscriptions Contribution % by Partner Type"
+    )
+
+    fig_renew.update_traces(
+        texttemplate="%{percent:.1%}",
+        hovertemplate=(
+            "<b>%{label}</b><br>"
+            "Subscriptions: %{value:,}<br>"
+            "Contribution: %{percent:.1%}"
+            "<extra></extra>"
+        )
+    )
+
+else:
+
+    fig_renew = None
+
+
+# =========================================================
+# DISPLAY CHARTS
+# =========================================================
+
+st.divider()
+
+chart_col1, chart_col2 = st.columns(2)
+
+
+with chart_col1:
+
+    if fig_new is not None:
+        st.plotly_chart(
+            fig_new,
+            use_container_width=True
+        )
+    else:
+        st.info(
+            "No new subscriptions for the selected filters."
+        )
+
+
+with chart_col2:
+
+    if fig_renew is not None:
+        st.plotly_chart(
+            fig_renew,
+            use_container_width=True
+        )
+    else:
+        st.info(
+            "No renewed subscriptions for the selected filters."
+        )

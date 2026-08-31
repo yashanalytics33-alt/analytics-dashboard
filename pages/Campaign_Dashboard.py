@@ -9,116 +9,213 @@ import plotly.express as px
 # =========================================================
 
 st.set_page_config(
-    page_title="Campaign Dashboard",
+    page_title="Subscription Analytics",
     page_icon="📊",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
 
 # =========================================================
-# CUSTOM DESIGN
+# CUSTOM CSS
 # =========================================================
 
-st.markdown("""
-<style>
+st.markdown(
+    """
+    <style>
 
-    /* Main background */
+    /* =====================================================
+       GLOBAL
+       ===================================================== */
+
     .stApp {
         background-color: #f5f7fb;
     }
 
-    /* Remove excessive top spacing */
-    .block-container {
-        padding-top: 2rem;
-        padding-bottom: 3rem;
+    .main .block-container {
         max-width: 1500px;
+        padding-top: 1.5rem;
+        padding-bottom: 3rem;
+        padding-left: 3rem;
+        padding-right: 3rem;
     }
 
-    /* Main title */
+
+    /* =====================================================
+       SIDEBAR
+       ===================================================== */
+
+    [data-testid="stSidebar"] {
+        background-color: #eef2f7;
+    }
+
+
+    /* =====================================================
+       HEADER
+       ===================================================== */
+
     .dashboard-title {
-        font-size: 32px;
-        font-weight: 700;
-        color: #172033;
-        margin-bottom: 2px;
+        font-size: 36px;
+        font-weight: 800;
+        color: #102a43;
+        margin-bottom: 0px;
+        letter-spacing: -1px;
     }
 
     .dashboard-subtitle {
         font-size: 15px;
-        color: #6b7280;
-        margin-bottom: 20px;
+        color: #627d98;
+        margin-top: 2px;
+        margin-bottom: 25px;
     }
 
-    /* Section title */
+
+    /* =====================================================
+       SECTION HEADINGS
+       ===================================================== */
+
     .section-title {
-        font-size: 20px;
-        font-weight: 650;
-        color: #172033;
-        margin-top: 20px;
+        font-size: 22px;
+        font-weight: 750;
+        color: #102a43;
+        margin-top: 18px;
         margin-bottom: 12px;
     }
 
-    /* Filter container */
-    .filter-box {
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 14px;
-        padding: 18px 20px 8px 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    .section-subtitle {
+        font-size: 13px;
+        color: #829ab1;
+        margin-top: -7px;
+        margin-bottom: 15px;
     }
 
-    /* KPI cards */
-    div[data-testid="stMetric"] {
+
+    /* =====================================================
+       FILTER BOX
+       ===================================================== */
+
+    .filter-container {
         background: white;
-        border: 1px solid #e5e7eb;
+        border: 1px solid #e1e8f0;
         border-radius: 14px;
-        padding: 18px 20px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-        min-height: 115px;
+        padding: 20px 22px 8px 22px;
+        margin-bottom: 28px;
+        box-shadow: 0 2px 8px rgba(16, 42, 67, 0.05);
     }
 
-    div[data-testid="stMetricLabel"] {
-        color: #6b7280;
-        font-size: 14px;
+
+    /* =====================================================
+       KPI CARDS
+       ===================================================== */
+
+    .kpi-card {
+        background: white;
+        border: 1px solid #e1e8f0;
+        border-radius: 14px;
+        padding: 19px 20px;
+        min-height: 118px;
+        box-shadow: 0 3px 10px rgba(16, 42, 67, 0.06);
+        transition: all 0.2s ease;
+    }
+
+    .kpi-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 7px 18px rgba(16, 42, 67, 0.10);
+    }
+
+    .kpi-label {
+        font-size: 13px;
+        color: #627d98;
         font-weight: 500;
+        margin-bottom: 8px;
     }
 
-    div[data-testid="stMetricValue"] {
-        color: #172033;
-        font-size: 27px;
-        font-weight: 700;
+    .kpi-value {
+        font-size: 29px;
+        font-weight: 750;
+        color: #102a43;
+        line-height: 1.1;
     }
 
-    /* Chart cards */
-    .chart-card {
+    .kpi-icon {
+        font-size: 20px;
+        margin-bottom: 8px;
+    }
+
+
+    /* =====================================================
+       CHART CONTAINER
+       ===================================================== */
+
+    .chart-header {
         background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 14px;
-        padding: 8px;
-        margin-bottom: 18px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        border: 1px solid #e1e8f0;
+        border-radius: 14px 14px 0px 0px;
+        padding: 15px 20px 5px 20px;
+        margin-top: 10px;
+        margin-bottom: -5px;
     }
 
-    /* Buttons */
-    .stButton > button {
+
+    /* =====================================================
+       FILTERED ROWS
+       ===================================================== */
+
+    .filtered-info {
+        background: #edf2f7;
+        border-radius: 8px;
+        padding: 8px 12px;
+        color: #486581;
+        font-size: 13px;
+        display: inline-block;
+        margin-top: 10px;
+        margin-bottom: 15px;
+    }
+
+
+    /* =====================================================
+       STREAMLIT BUTTON
+       ===================================================== */
+
+    div.stButton > button {
         border-radius: 9px;
-        border: 1px solid #d1d5db;
+        border: 1px solid #d9e2ec;
+        background-color: white;
+        color: #102a43;
         font-weight: 600;
-        padding: 7px 16px;
     }
 
-    /* Multiselect */
+    div.stButton > button:hover {
+        border-color: #486581;
+        color: #102a43;
+    }
+
+
+    /* =====================================================
+       MULTISELECT
+       ===================================================== */
+
     div[data-baseweb="select"] > div {
         border-radius: 9px;
+        border-color: #d9e2ec;
+        background-color: #f8fafc;
     }
 
-    /* Hide Streamlit footer */
-    footer {
-        visibility: hidden;
+
+    /* =====================================================
+       DIVIDER
+       ===================================================== */
+
+    hr {
+        border: none;
+        border-top: 1px solid #e1e8f0;
+        margin: 25px 0px;
     }
 
-</style>
-""", unsafe_allow_html=True)
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 
 # =========================================================
@@ -130,22 +227,27 @@ header_col1, header_col2 = st.columns([7, 1])
 with header_col1:
 
     st.markdown(
-        '<div class="dashboard-title">📊 Campaign Dashboard</div>',
-        unsafe_allow_html=True
-    )
+        """
+        <div class="dashboard-title">
+            📊 Campaign Dashboard
+        </div>
 
-    st.markdown(
-        '<div class="dashboard-subtitle">'
-        'Subscription & Campaign Performance'
-        '</div>',
+        <div class="dashboard-subtitle">
+            Subscription & Campaign Performance
+        </div>
+        """,
         unsafe_allow_html=True
     )
 
 
 with header_col2:
 
-    if st.button("🔄 Refresh", use_container_width=True):
+    st.write("")
 
+    if st.button(
+        "🔄 Refresh",
+        use_container_width=True
+    ):
         st.cache_data.clear()
         st.rerun()
 
@@ -158,6 +260,7 @@ conn = st.connection(
     "gsheets",
     type=GSheetsConnection
 )
+
 
 df = conn.read(
     worksheet="payment report(combined)",
@@ -183,6 +286,7 @@ df["transactionpurpose"] = (
     .str.upper()
 )
 
+
 df["currency"] = (
     df["currency"]
     .astype(str)
@@ -202,6 +306,7 @@ text_columns = [
     "devicetype",
     "Week"
 ]
+
 
 for column in text_columns:
 
@@ -238,12 +343,21 @@ df["created"] = pd.to_datetime(
 # =========================================================
 
 st.markdown(
-    '<div class="section-title">🎛️ Filters</div>',
+    """
+    <div class="section-title">
+        🎛️ Filters
+    </div>
+    """,
     unsafe_allow_html=True
 )
 
+
+# =========================================================
+# FILTER CONTAINER START
+# =========================================================
+
 st.markdown(
-    '<div class="filter-box">',
+    '<div class="filter-container">',
     unsafe_allow_html=True
 )
 
@@ -256,11 +370,16 @@ def get_context_df(exclude=None):
 
     temp_df = df.copy()
 
+
+    # -----------------------------------------------------
     # APP
+    # -----------------------------------------------------
+
     if exclude != "App":
 
         selected = st.session_state.get(
-            "app_filter", []
+            "app_filter",
+            []
         )
 
         if selected:
@@ -270,11 +389,15 @@ def get_context_df(exclude=None):
             ]
 
 
+    # -----------------------------------------------------
     # DATE
+    # -----------------------------------------------------
+
     if exclude != "Date":
 
         selected = st.session_state.get(
-            "date_filter", []
+            "date_filter",
+            []
         )
 
         if selected:
@@ -284,11 +407,15 @@ def get_context_df(exclude=None):
             ]
 
 
+    # -----------------------------------------------------
     # MONTH
+    # -----------------------------------------------------
+
     if exclude != "Month":
 
         selected = st.session_state.get(
-            "month_filter", []
+            "month_filter",
+            []
         )
 
         if selected:
@@ -298,11 +425,15 @@ def get_context_df(exclude=None):
             ]
 
 
+    # -----------------------------------------------------
     # PARTNER TYPE
+    # -----------------------------------------------------
+
     if exclude != "Partner Type":
 
         selected = st.session_state.get(
-            "partner_type_filter", []
+            "partner_type_filter",
+            []
         )
 
         if selected:
@@ -312,11 +443,15 @@ def get_context_df(exclude=None):
             ]
 
 
+    # -----------------------------------------------------
     # PARTNER
+    # -----------------------------------------------------
+
     if exclude != "Partner":
 
         selected = st.session_state.get(
-            "partner_filter", []
+            "partner_filter",
+            []
         )
 
         if selected:
@@ -326,11 +461,15 @@ def get_context_df(exclude=None):
             ]
 
 
+    # -----------------------------------------------------
     # AGENCY
+    # -----------------------------------------------------
+
     if exclude != "Agency":
 
         selected = st.session_state.get(
-            "agency_filter", []
+            "agency_filter",
+            []
         )
 
         if selected:
@@ -340,11 +479,15 @@ def get_context_df(exclude=None):
             ]
 
 
+    # -----------------------------------------------------
     # CAMPAIGN
+    # -----------------------------------------------------
+
     if exclude != "Campaign":
 
         selected = st.session_state.get(
-            "campaign_filter", []
+            "campaign_filter",
+            []
         )
 
         if selected:
@@ -354,11 +497,15 @@ def get_context_df(exclude=None):
             ]
 
 
+    # -----------------------------------------------------
     # PLAN
+    # -----------------------------------------------------
+
     if exclude != "Plan":
 
         selected = st.session_state.get(
-            "plan_filter", []
+            "plan_filter",
+            []
         )
 
         if selected:
@@ -368,11 +515,15 @@ def get_context_df(exclude=None):
             ]
 
 
+    # -----------------------------------------------------
     # CURRENCY
+    # -----------------------------------------------------
+
     if exclude != "Currency":
 
         selected = st.session_state.get(
-            "currency_filter", []
+            "currency_filter",
+            []
         )
 
         if selected:
@@ -382,11 +533,15 @@ def get_context_df(exclude=None):
             ]
 
 
+    # -----------------------------------------------------
     # GWPROVIDER
+    # -----------------------------------------------------
+
     if exclude != "Gwprovider":
 
         selected = st.session_state.get(
-            "gwprovider_filter", []
+            "gwprovider_filter",
+            []
         )
 
         if selected:
@@ -396,11 +551,15 @@ def get_context_df(exclude=None):
             ]
 
 
+    # -----------------------------------------------------
     # DEVICE TYPE
+    # -----------------------------------------------------
+
     if exclude != "devicetype":
 
         selected = st.session_state.get(
-            "device_filter", []
+            "device_filter",
+            []
         )
 
         if selected:
@@ -410,11 +569,15 @@ def get_context_df(exclude=None):
             ]
 
 
+    # -----------------------------------------------------
     # WEEK
+    # -----------------------------------------------------
+
     if exclude != "Week":
 
         selected = st.session_state.get(
-            "week_filter", []
+            "week_filter",
+            []
         )
 
         if selected:
@@ -424,11 +587,15 @@ def get_context_df(exclude=None):
             ]
 
 
+    # -----------------------------------------------------
     # STATUS
+    # -----------------------------------------------------
+
     if exclude != "Status":
 
         selected = st.session_state.get(
-            "status_filter", []
+            "status_filter",
+            []
         )
 
         if selected:
@@ -442,18 +609,23 @@ def get_context_df(exclude=None):
 
 
 # =========================================================
-# FILTER ROW 1
+# ROW 1
+# App | Date | Month | Partner Type | Partner
 # =========================================================
 
 col1, col2, col3, col4, col5 = st.columns(5)
 
 
+# ---------------------------------------------------------
 # APP
+# ---------------------------------------------------------
+
 with col1:
 
     app_options = sorted(
         [
-            x for x in get_context_df("App")["App"]
+            x
+            for x in get_context_df("App")["App"]
             .dropna()
             .unique()
             if x != ""
@@ -468,7 +640,10 @@ with col1:
     )
 
 
+# ---------------------------------------------------------
 # DATE
+# ---------------------------------------------------------
+
 with col2:
 
     date_options = sorted(
@@ -489,12 +664,16 @@ with col2:
     )
 
 
+# ---------------------------------------------------------
 # MONTH
+# ---------------------------------------------------------
+
 with col3:
 
     month_options = sorted(
         [
-            x for x in get_context_df("Month")["Month"]
+            x
+            for x in get_context_df("Month")["Month"]
             .dropna()
             .unique()
             if x != ""
@@ -509,12 +688,16 @@ with col3:
     )
 
 
+# ---------------------------------------------------------
 # PARTNER TYPE
+# ---------------------------------------------------------
+
 with col4:
 
     partner_type_options = sorted(
         [
-            x for x in get_context_df("Partner Type")["Partner Type"]
+            x
+            for x in get_context_df("Partner Type")["Partner Type"]
             .dropna()
             .unique()
             if x != ""
@@ -529,12 +712,16 @@ with col4:
     )
 
 
+# ---------------------------------------------------------
 # PARTNER
+# ---------------------------------------------------------
+
 with col5:
 
     partner_options = sorted(
         [
-            x for x in get_context_df("Partner")["Partner"]
+            x
+            for x in get_context_df("Partner")["Partner"]
             .dropna()
             .unique()
             if x != ""
@@ -550,18 +737,23 @@ with col5:
 
 
 # =========================================================
-# FILTER ROW 2
+# ROW 2
+# Agency | Campaign | Plan | Currency | Gwprovider
 # =========================================================
 
 col6, col7, col8, col9, col10 = st.columns(5)
 
 
+# ---------------------------------------------------------
 # AGENCY
+# ---------------------------------------------------------
+
 with col6:
 
     agency_options = sorted(
         [
-            x for x in get_context_df("Agency")["Agency"]
+            x
+            for x in get_context_df("Agency")["Agency"]
             .dropna()
             .unique()
             if x != ""
@@ -576,12 +768,16 @@ with col6:
     )
 
 
+# ---------------------------------------------------------
 # CAMPAIGN
+# ---------------------------------------------------------
+
 with col7:
 
     campaign_options = sorted(
         [
-            x for x in get_context_df("Campaign")["Campaign"]
+            x
+            for x in get_context_df("Campaign")["Campaign"]
             .dropna()
             .unique()
             if x != ""
@@ -596,7 +792,10 @@ with col7:
     )
 
 
+# ---------------------------------------------------------
 # PLAN
+# ---------------------------------------------------------
+
 with col8:
 
     plan_options = sorted(
@@ -615,12 +814,16 @@ with col8:
     )
 
 
+# ---------------------------------------------------------
 # CURRENCY
+# ---------------------------------------------------------
+
 with col9:
 
     currency_options = sorted(
         [
-            x for x in get_context_df("Currency")["currency"]
+            x
+            for x in get_context_df("Currency")["currency"]
             .dropna()
             .unique()
             if x != ""
@@ -635,12 +838,16 @@ with col9:
     )
 
 
+# ---------------------------------------------------------
 # GWPROVIDER
+# ---------------------------------------------------------
+
 with col10:
 
     gwprovider_options = sorted(
         [
-            x for x in get_context_df("Gwprovider")["gwprovider"]
+            x
+            for x in get_context_df("Gwprovider")["gwprovider"]
             .dropna()
             .unique()
             if x != ""
@@ -656,18 +863,23 @@ with col10:
 
 
 # =========================================================
-# FILTER ROW 3
+# ROW 3
+# Device Type | Week | Status
 # =========================================================
 
-col11, col12, col13 = st.columns(3)
+col11, col12, col13 = st.columns([1, 1, 1])
 
 
-# DEVICE
+# ---------------------------------------------------------
+# DEVICE TYPE
+# ---------------------------------------------------------
+
 with col11:
 
     device_options = sorted(
         [
-            x for x in get_context_df("devicetype")["devicetype"]
+            x
+            for x in get_context_df("devicetype")["devicetype"]
             .dropna()
             .unique()
             if x != ""
@@ -682,12 +894,16 @@ with col11:
     )
 
 
+# ---------------------------------------------------------
 # WEEK
+# ---------------------------------------------------------
+
 with col12:
 
     week_options = sorted(
         [
-            x for x in get_context_df("Week")["Week"]
+            x
+            for x in get_context_df("Week")["Week"]
             .dropna()
             .unique()
             if x != ""
@@ -702,12 +918,18 @@ with col12:
     )
 
 
+# ---------------------------------------------------------
 # STATUS
+# ---------------------------------------------------------
+
 with col13:
 
     status_options = sorted(
         [
-            x for x in get_context_df("Status")["transactionpurpose"]
+            x
+            for x in get_context_df("Status")[
+                "transactionpurpose"
+            ]
             .dropna()
             .unique()
             if x != ""
@@ -722,7 +944,14 @@ with col13:
     )
 
 
-st.markdown("</div>", unsafe_allow_html=True)
+# =========================================================
+# CLOSE FILTER CONTAINER
+# =========================================================
+
+st.markdown(
+    "</div>",
+    unsafe_allow_html=True
+)
 
 
 # =========================================================
@@ -733,7 +962,7 @@ filtered_df = get_context_df()
 
 
 # =========================================================
-# PERFORMANCE OVERVIEW
+# KPI CALCULATIONS
 # =========================================================
 
 new_subscriptions = (
@@ -747,27 +976,38 @@ renew_subscriptions = (
 
 
 total_subscriptions = (
-    new_subscriptions + renew_subscriptions
+    new_subscriptions +
+    renew_subscriptions
 )
 
 
 # =========================================================
 # REVENUE
+# INR ONLY
 # =========================================================
 
 inr_data = filtered_df[
     filtered_df["currency"] == "INR"
 ]
 
+
 total_revenue = inr_data["Plan"].sum()
 
 
 # =========================================================
-# SECTION TITLE
+# PERFORMANCE OVERVIEW
 # =========================================================
 
 st.markdown(
-    '<div class="section-title">📈 Performance Overview</div>',
+    """
+    <div class="section-title">
+        📈 Performance Overview
+    </div>
+
+    <div class="section-subtitle">
+        Key subscription and revenue metrics based on the selected filters
+    </div>
+    """,
     unsafe_allow_html=True
 )
 
@@ -781,33 +1021,89 @@ kpi1, kpi2, kpi3, kpi4 = st.columns(4)
 
 with kpi1:
 
-    st.metric(
-        "Total Revenue (INR)",
-        f"₹{total_revenue:,.0f}"
+    st.markdown(
+        f"""
+        <div class="kpi-card">
+
+            <div class="kpi-icon">💰</div>
+
+            <div class="kpi-label">
+                Total Revenue (INR)
+            </div>
+
+            <div class="kpi-value">
+                ₹{total_revenue:,.0f}
+            </div>
+
+        </div>
+        """,
+        unsafe_allow_html=True
     )
 
 
 with kpi2:
 
-    st.metric(
-        "Total Subscriptions",
-        f"{total_subscriptions:,}"
+    st.markdown(
+        f"""
+        <div class="kpi-card">
+
+            <div class="kpi-icon">👥</div>
+
+            <div class="kpi-label">
+                Total Subscriptions
+            </div>
+
+            <div class="kpi-value">
+                {total_subscriptions:,}
+            </div>
+
+        </div>
+        """,
+        unsafe_allow_html=True
     )
 
 
 with kpi3:
 
-    st.metric(
-        "New Subscriptions",
-        f"{new_subscriptions:,}"
+    st.markdown(
+        f"""
+        <div class="kpi-card">
+
+            <div class="kpi-icon">🆕</div>
+
+            <div class="kpi-label">
+                New Subscriptions
+            </div>
+
+            <div class="kpi-value">
+                {new_subscriptions:,}
+            </div>
+
+        </div>
+        """,
+        unsafe_allow_html=True
     )
 
 
 with kpi4:
 
-    st.metric(
-        "Renew Subscriptions",
-        f"{renew_subscriptions:,}"
+    st.markdown(
+        f"""
+        <div class="kpi-card">
+
+            <div class="kpi-icon">🔄</div>
+
+            <div class="kpi-label">
+                Renew Subscriptions
+            </div>
+
+            <div class="kpi-value">
+                {renew_subscriptions:,}
+            </div>
+
+        </div>
+        """,
+        unsafe_allow_html=True
     )
 
 
@@ -817,14 +1113,8 @@ with kpi4:
 
 st.markdown(
     f"""
-    <div style="
-        text-align:right;
-        color:#6b7280;
-        font-size:13px;
-        margin-top:10px;
-        margin-bottom:15px;
-    ">
-        Filtered rows: <b>{len(filtered_df):,}</b>
+    <div class="filtered-info">
+        📄 <b>{len(filtered_df):,}</b> records matching current filters
     </div>
     """,
     unsafe_allow_html=True
@@ -832,11 +1122,19 @@ st.markdown(
 
 
 # =========================================================
-# PARTNER PERFORMANCE
+# CHART SECTION TITLE
 # =========================================================
 
 st.markdown(
-    '<div class="section-title">👥 Partner Performance</div>',
+    """
+    <div class="section-title">
+        🤝 Partner Performance
+    </div>
+
+    <div class="section-subtitle">
+        New and renewed subscription contribution by partner
+    </div>
+    """,
     unsafe_allow_html=True
 )
 
@@ -855,7 +1153,10 @@ new_partner = (
     .groupby("Partner")
     .size()
     .reset_index(name="Subscriptions")
-    .sort_values("Subscriptions", ascending=False)
+    .sort_values(
+        "Subscriptions",
+        ascending=False
+    )
 )
 
 
@@ -864,7 +1165,8 @@ if not new_partner.empty:
     fig_new_partner = px.pie(
         new_partner,
         names="Partner",
-        values="Subscriptions"
+        values="Subscriptions",
+        hole=0.42
     )
 
     fig_new_partner.update_traces(
@@ -875,21 +1177,27 @@ if not new_partner.empty:
             "Subscriptions: %{value:,}<br>"
             "Contribution: %{percent:.1%}"
             "<extra></extra>"
-        ),
-        sort=False
+        )
     )
 
     fig_new_partner.update_layout(
         title={
             "text": "New Subscriptions",
-            "x": 0.02,
+            "x": 0.03,
             "xanchor": "left"
         },
-        height=430,
-        margin=dict(l=10, r=10, t=55, b=10),
+        legend_title_text="Partner",
+        margin=dict(
+            l=20,
+            r=20,
+            t=65,
+            b=20
+        ),
         paper_bgcolor="white",
         plot_bgcolor="white",
-        legend_title_text="Partner"
+        font=dict(
+            color="#102a43"
+        )
     )
 
 else:
@@ -898,7 +1206,7 @@ else:
 
 
 # =========================================================
-# RENEW SUBSCRIPTIONS BY PARTNER
+# RENEWED SUBSCRIPTIONS BY PARTNER
 # =========================================================
 
 renew_partner_df = filtered_df[
@@ -911,7 +1219,10 @@ renew_partner = (
     .groupby("Partner")
     .size()
     .reset_index(name="Subscriptions")
-    .sort_values("Subscriptions", ascending=False)
+    .sort_values(
+        "Subscriptions",
+        ascending=False
+    )
 )
 
 
@@ -920,7 +1231,8 @@ if not renew_partner.empty:
     fig_renew_partner = px.pie(
         renew_partner,
         names="Partner",
-        values="Subscriptions"
+        values="Subscriptions",
+        hole=0.42
     )
 
     fig_renew_partner.update_traces(
@@ -931,21 +1243,27 @@ if not renew_partner.empty:
             "Subscriptions: %{value:,}<br>"
             "Contribution: %{percent:.1%}"
             "<extra></extra>"
-        ),
-        sort=False
+        )
     )
 
     fig_renew_partner.update_layout(
         title={
             "text": "Renewed Subscriptions",
-            "x": 0.02,
+            "x": 0.03,
             "xanchor": "left"
         },
-        height=430,
-        margin=dict(l=10, r=10, t=55, b=10),
+        legend_title_text="Partner",
+        margin=dict(
+            l=20,
+            r=20,
+            t=65,
+            b=20
+        ),
         paper_bgcolor="white",
         plot_bgcolor="white",
-        legend_title_text="Partner"
+        font=dict(
+            color="#102a43"
+        )
     )
 
 else:
@@ -964,46 +1282,48 @@ with chart_col1:
 
     if fig_new_partner is not None:
 
-        st.markdown('<div class="chart-card">', unsafe_allow_html=True)
-
         st.plotly_chart(
             fig_new_partner,
-            use_container_width=True,
-            config={"displayModeBar": False}
+            use_container_width=True
         )
-
-        st.markdown("</div>", unsafe_allow_html=True)
 
     else:
 
-        st.info("No new subscriptions for selected filters.")
+        st.info(
+            "No new subscriptions for selected filters."
+        )
 
 
 with chart_col2:
 
     if fig_renew_partner is not None:
 
-        st.markdown('<div class="chart-card">', unsafe_allow_html=True)
-
         st.plotly_chart(
             fig_renew_partner,
-            use_container_width=True,
-            config={"displayModeBar": False}
+            use_container_width=True
         )
-
-        st.markdown("</div>", unsafe_allow_html=True)
 
     else:
 
-        st.info("No renewed subscriptions for selected filters.")
+        st.info(
+            "No renewed subscriptions for selected filters."
+        )
 
 
 # =========================================================
-# PARTNER TYPE PERFORMANCE
+# PARTNER TYPE SECTION
 # =========================================================
 
 st.markdown(
-    '<div class="section-title">🏢 Partner Type Performance</div>',
+    """
+    <div class="section-title">
+        🏷️ Partner Type Performance
+    </div>
+
+    <div class="section-subtitle">
+        Subscription contribution across partner categories
+    </div>
+    """,
     unsafe_allow_html=True
 )
 
@@ -1025,12 +1345,13 @@ pt_new = (
 )
 
 
-if len(pt_new) > 0:
+if not pt_new.empty:
 
     chart_pt_new = px.pie(
         pt_new,
         names="Partner Type",
-        values="Subscriptions"
+        values="Subscriptions",
+        hole=0.42
     )
 
     chart_pt_new.update_traces(
@@ -1047,14 +1368,18 @@ if len(pt_new) > 0:
     chart_pt_new.update_layout(
         title={
             "text": "New Subscriptions",
-            "x": 0.02,
+            "x": 0.03,
             "xanchor": "left"
         },
-        height=430,
-        margin=dict(l=10, r=10, t=55, b=10),
+        legend_title_text="Partner Type",
+        margin=dict(
+            l=20,
+            r=20,
+            t=65,
+            b=20
+        ),
         paper_bgcolor="white",
-        plot_bgcolor="white",
-        legend_title_text="Partner Type"
+        plot_bgcolor="white"
     )
 
 else:
@@ -1079,12 +1404,13 @@ pt_renew = (
 )
 
 
-if len(pt_renew) > 0:
+if not pt_renew.empty:
 
     chart_pt_renew = px.pie(
         pt_renew,
         names="Partner Type",
-        values="Subscriptions"
+        values="Subscriptions",
+        hole=0.42
     )
 
     chart_pt_renew.update_traces(
@@ -1101,14 +1427,18 @@ if len(pt_renew) > 0:
     chart_pt_renew.update_layout(
         title={
             "text": "Renewed Subscriptions",
-            "x": 0.02,
+            "x": 0.03,
             "xanchor": "left"
         },
-        height=430,
-        margin=dict(l=10, r=10, t=55, b=10),
+        legend_title_text="Partner Type",
+        margin=dict(
+            l=20,
+            r=20,
+            t=65,
+            b=20
+        ),
         paper_bgcolor="white",
-        plot_bgcolor="white",
-        legend_title_text="Partner Type"
+        plot_bgcolor="white"
     )
 
 else:
@@ -1127,38 +1457,32 @@ with pt_col1:
 
     if chart_pt_new is not None:
 
-        st.markdown('<div class="chart-card">', unsafe_allow_html=True)
-
         st.plotly_chart(
             chart_pt_new,
-            use_container_width=True,
-            config={"displayModeBar": False}
+            use_container_width=True
         )
-
-        st.markdown("</div>", unsafe_allow_html=True)
 
     else:
 
-        st.info("No new subscriptions.")
+        st.info(
+            "No new subscriptions."
+        )
 
 
 with pt_col2:
 
     if chart_pt_renew is not None:
 
-        st.markdown('<div class="chart-card">', unsafe_allow_html=True)
-
         st.plotly_chart(
             chart_pt_renew,
-            use_container_width=True,
-            config={"displayModeBar": False}
+            use_container_width=True
         )
-
-        st.markdown("</div>", unsafe_allow_html=True)
 
     else:
 
-        st.info("No renewed subscriptions.")
+        st.info(
+            "No renewed subscriptions."
+        )
 
 
 # =========================================================
@@ -1166,13 +1490,21 @@ with pt_col2:
 # =========================================================
 
 st.markdown(
-    '<div class="section-title">🏷️ Agency Performance</div>',
+    """
+    <div class="section-title">
+        🏢 Agency Performance
+    </div>
+
+    <div class="section-subtitle">
+        New and renewed subscriptions generated through agencies
+    </div>
+    """,
     unsafe_allow_html=True
 )
 
 
 # =========================================================
-# NEW BY AGENCY
+# NEW SUBSCRIPTIONS BY AGENCY
 # =========================================================
 
 agency_new = filtered_df[
@@ -1190,12 +1522,13 @@ agency_new = (
 )
 
 
-if len(agency_new) > 0:
+if not agency_new.empty:
 
     fig_agency_new = px.pie(
         agency_new,
         names="Agency",
-        values="Subscriptions"
+        values="Subscriptions",
+        hole=0.42
     )
 
     fig_agency_new.update_traces(
@@ -1212,14 +1545,18 @@ if len(agency_new) > 0:
     fig_agency_new.update_layout(
         title={
             "text": "New Subscriptions",
-            "x": 0.02,
+            "x": 0.03,
             "xanchor": "left"
         },
-        height=430,
-        margin=dict(l=10, r=10, t=55, b=10),
+        legend_title_text="Agency",
+        margin=dict(
+            l=20,
+            r=20,
+            t=65,
+            b=20
+        ),
         paper_bgcolor="white",
-        plot_bgcolor="white",
-        legend_title_text="Agency"
+        plot_bgcolor="white"
     )
 
 else:
@@ -1228,7 +1565,7 @@ else:
 
 
 # =========================================================
-# RENEW BY AGENCY
+# RENEWED SUBSCRIPTIONS BY AGENCY
 # =========================================================
 
 agency_renew = filtered_df[
@@ -1246,12 +1583,13 @@ agency_renew = (
 )
 
 
-if len(agency_renew) > 0:
+if not agency_renew.empty:
 
     fig_agency_renew = px.pie(
         agency_renew,
         names="Agency",
-        values="Subscriptions"
+        values="Subscriptions",
+        hole=0.42
     )
 
     fig_agency_renew.update_traces(
@@ -1268,14 +1606,18 @@ if len(agency_renew) > 0:
     fig_agency_renew.update_layout(
         title={
             "text": "Renewed Subscriptions",
-            "x": 0.02,
+            "x": 0.03,
             "xanchor": "left"
         },
-        height=430,
-        margin=dict(l=10, r=10, t=55, b=10),
+        legend_title_text="Agency",
+        margin=dict(
+            l=20,
+            r=20,
+            t=65,
+            b=20
+        ),
         paper_bgcolor="white",
-        plot_bgcolor="white",
-        legend_title_text="Agency"
+        plot_bgcolor="white"
     )
 
 else:
@@ -1284,7 +1626,7 @@ else:
 
 
 # =========================================================
-# DISPLAY AGENCY
+# DISPLAY AGENCY CHARTS
 # =========================================================
 
 agency_col1, agency_col2 = st.columns(2)
@@ -1294,35 +1636,50 @@ with agency_col1:
 
     if fig_agency_new is not None:
 
-        st.markdown('<div class="chart-card">', unsafe_allow_html=True)
-
         st.plotly_chart(
             fig_agency_new,
-            use_container_width=True,
-            config={"displayModeBar": False}
+            use_container_width=True
         )
-
-        st.markdown("</div>", unsafe_allow_html=True)
 
     else:
 
-        st.info("No new subscriptions.")
+        st.info(
+            "No new subscriptions."
+        )
 
 
 with agency_col2:
 
     if fig_agency_renew is not None:
 
-        st.markdown('<div class="chart-card">', unsafe_allow_html=True)
-
         st.plotly_chart(
             fig_agency_renew,
-            use_container_width=True,
-            config={"displayModeBar": False}
+            use_container_width=True
         )
-
-        st.markdown("</div>", unsafe_allow_html=True)
 
     else:
 
-        st.info("No renewed subscriptions.")
+        st.info(
+            "No renewed subscriptions."
+        )
+
+
+# =========================================================
+# FOOTER
+# =========================================================
+
+st.markdown(
+    """
+    <hr>
+
+    <div style="
+        text-align:center;
+        color:#829ab1;
+        font-size:12px;
+        padding:8px;
+    ">
+        Subscription Analytics Dashboard
+    </div>
+    """,
+    unsafe_allow_html=True
+)

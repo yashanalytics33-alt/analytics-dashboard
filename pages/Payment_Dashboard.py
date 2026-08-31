@@ -356,17 +356,7 @@ with col1:
         placeholder="All"
     )
 
-st.write(
-    "Apps in payment data:",
-    sorted(
-        df["App"]
-        .dropna()
-        .astype(str)
-        .str.strip()
-        .unique()
-        .tolist()
-    )
-)
+
 # =========================================================
 # YEAR
 # =========================================================

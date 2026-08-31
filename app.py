@@ -973,6 +973,8 @@ with pt_col2:
 
         st.info("No renewed subscriptions.")
 
+
+
 # =========================================================
 # AGENCY CHARTS
 # =========================================================
@@ -983,8 +985,11 @@ with pt_col2:
 # ---------------------------------------------------------
 
 agency_new = filtered_df[
-    filtered_df["transactionpurpose"] == "NEW"
-]
+    (filtered_df["transactionpurpose"] == "NEW") &
+    (filtered_df["Agency"].astype(str).str.strip() != "") &
+    (filtered_df["Agency"].astype(str).str.strip() != "0")
+].copy()
+
 
 agency_new = (
     agency_new
@@ -992,6 +997,7 @@ agency_new = (
     .size()
     .reset_index(name="Subscriptions")
 )
+
 
 if len(agency_new) > 0:
 
@@ -1028,8 +1034,11 @@ else:
 # ---------------------------------------------------------
 
 agency_renew = filtered_df[
-    filtered_df["transactionpurpose"] == "RENEW"
-]
+    (filtered_df["transactionpurpose"] == "RENEW") &
+    (filtered_df["Agency"].astype(str).str.strip() != "") &
+    (filtered_df["Agency"].astype(str).str.strip() != "0")
+].copy()
+
 
 agency_renew = (
     agency_renew
@@ -1037,6 +1046,7 @@ agency_renew = (
     .size()
     .reset_index(name="Subscriptions")
 )
+
 
 if len(agency_renew) > 0:
 

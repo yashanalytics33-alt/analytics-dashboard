@@ -304,24 +304,6 @@ def get_context_df(exclude=None):
             ]
 
 
-    # -----------------------------------------------------
-    # CREATED
-    # CREATED COLUMN ONLY
-    # -----------------------------------------------------
-
-    if exclude != "created":
-
-        selected = st.session_state.get(
-            "created_filter",
-            []
-        )
-
-        if selected:
-
-            temp_df = temp_df[
-                temp_df["created"].dt.date.isin(selected)
-            ]
-
 
     # -----------------------------------------------------
     # TYPE
@@ -548,29 +530,6 @@ with col8:
         placeholder="All"
     )
 
-
-# =========================================================
-# CREATED
-# =========================================================
-
-with col9:
-
-    options = sorted(
-        get_context_df("created")["created"]
-        .dropna()
-        .dt.date
-        .unique()
-        .tolist(),
-        reverse=True
-    )
-
-    st.multiselect(
-        "created",
-        options=options,
-        key="created_filter",
-        format_func=lambda x: x.strftime("%d %b %Y"),
-        placeholder="All"
-    )
 
 
 # =========================================================

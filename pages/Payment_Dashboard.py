@@ -4,70 +4,51 @@ import pandas as pd
 
 
 # =========================================================
-# PAGE SETTINGS
-# =========================================================
-
-st.set_page_config(
-    page_title="Payment Dashboard",
-    page_icon="💳",
-    layout="wide"
-)
-
-
-# =========================================================
-# HEADER
+# PAYMENT DASHBOARD
 # =========================================================
 
 st.title("💳 Payment Dashboard")
 
 
 # =========================================================
-# PAYMENT GOOGLE SHEETS CONNECTION
+# GOOGLE SHEETS CONNECTION
 # =========================================================
 
-payment_conn = st.connection(
+conn = st.connection(
     "payment_gsheets",
     type=GSheetsConnection,
-    spreadsheet="https://docs.google.com/spreadsheets/d/1jin_QZwN7G1nwXebnWvs6rcged5xnggxefghpjehlfc/edit#gid=1939404209"
+    spreadsheet="https://docs.google.com/spreadsheets/d/1jin_QZwN7G1nwXebnWvs6rcged5xnggxefghpjehlfc/edit"
 )
 
 
 # =========================================================
-# PAYMENT SUBSCRIPTION DATA
+# READ PAYMENT REPORT
 # =========================================================
 
-payment_df = payment_conn.read(
-    worksheet="payment subscription",
+payment_df = conn.read(
+    worksheet="payment report",
     ttl=600
 )
 
 
 # =========================================================
-# CLEAN COLUMN NAMES
+# BASIC CLEANING
 # =========================================================
 
 payment_df.columns = payment_df.columns.str.strip()
 
 
 # =========================================================
-# BASIC INFORMATION
+# SHOW DATA
 # =========================================================
 
-st.success("Payment subscription sheet connected successfully")
+st.success("Payment data loaded successfully!")
 
-
-st.write(
-    f"**Total rows:** {len(payment_df):,}"
-)
-
-
-# =========================================================
-# COLUMNS AVAILABLE
-# =========================================================
-
-st.subheader("Payment Subscription Data")
+st.write("Rows:", len(payment_df))
+st.write("Columns:", len(payment_df.columns))
 
 st.dataframe(
     payment_df,
-    use_container_width=True
+    use_container_width=True,
+    hide_index=True
 )

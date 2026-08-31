@@ -2,7 +2,7 @@ import streamlit as st
 from streamlit_gsheets import GSheetsConnection
 import pandas as pd
 
-st.write("STEP 1 - APP STARTED")
+
 
 # =========================================================
 # PAGE SETTINGS
@@ -22,7 +22,7 @@ st.set_page_config(
 header_col1, header_col2 = st.columns([6, 1])
 
 with header_col1:
-    st.title("📊 Subscription Analytics Dashboard")
+    st.title("📊 Campaign Dashboard")
 
 with header_col2:
     if st.button("🔄 Refresh"):

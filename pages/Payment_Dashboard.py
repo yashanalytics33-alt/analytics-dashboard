@@ -44,7 +44,7 @@ conn = st.connection(
 # =========================================================
 
 df = conn.read(
-    worksheet="payment report(combined)",
+    worksheet="payment report",
     ttl=600
 )
 

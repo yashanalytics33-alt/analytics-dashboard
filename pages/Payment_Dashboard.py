@@ -22,20 +22,21 @@ st.title("💳 Payment Dashboard")
 
 
 # =========================================================
-# GOOGLE SHEETS CONNECTION
+# PAYMENT GOOGLE SHEETS CONNECTION
 # =========================================================
 
-conn = st.connection(
-    "gsheets",
-    type=GSheetsConnection
+payment_conn = st.connection(
+    "payment_gsheets",
+    type=GSheetsConnection,
+    spreadsheet="https://docs.google.com/spreadsheets/d/1jin_QZwN7G1nwXebnWvs6rcged5xnggxefghpjehlfc/edit#gid=1939404209"
 )
 
 
 # =========================================================
-# PAYMENT SUBSCRIPTION SHEET
+# PAYMENT SUBSCRIPTION DATA
 # =========================================================
 
-payment_df = conn.read(
+payment_df = payment_conn.read(
     worksheet="payment subscription",
     ttl=600
 )

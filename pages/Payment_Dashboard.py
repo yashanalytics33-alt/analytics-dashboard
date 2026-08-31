@@ -304,25 +304,26 @@ def get_context_df(exclude=None):
             ]
 
 
-# -----------------------------------------------------
-# TYPE
-# Uses TRANSACTIONPURPOSE column
-# -----------------------------------------------------
+    # -----------------------------------------------------
+    # TYPE
+    # TYPE COMES FROM TRANSACTIONPURPOSE
+    # -----------------------------------------------------
 
-if exclude != "Type":
+    if exclude != "Type":
 
-    selected = st.session_state.get(
-        "type_filter",
-        []
-    )
+        selected = st.session_state.get(
+            "type_filter",
+            []
+        )
 
-    if selected:
+        if selected:
 
-        temp_df = temp_df[
-            temp_df["transactionpurpose"].isin(selected)
-        ]
+            temp_df = temp_df[
+                temp_df["transactionpurpose"].isin(selected)
+            ]
 
-return temp_df
+
+    return temp_df
 
 # =========================================================
 # ROW 1

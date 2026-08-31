@@ -26,17 +26,17 @@ st.title("💳 Payment Dashboard")
 # =========================================================
 
 conn = st.connection(
-    "payment_gsheets",
+    "gsheets",
     type=GSheetsConnection
 )
 
 
 # =========================================================
-# READ PAYMENT DATA
+# READ PAYMENT SHEET
 # =========================================================
 
 payment_df = conn.read(
-    spreadsheet="Renew and Subscribed Report",
+    spreadsheet="https://docs.google.com/spreadsheets/d/1jin_QZwN7G1nwXebnWvs6rcged5xnggxefghpjehlfc/edit",
     worksheet="payment report",
     ttl=600
 )
@@ -59,16 +59,11 @@ payment_df.columns = (
 
 st.success("Payment data loaded successfully ✅")
 
-
-# =========================================================
-# BASIC INFORMATION
-# =========================================================
-
 st.write(f"**Total rows:** {len(payment_df):,}")
 
 
 # =========================================================
-# SHOW DATA
+# DATA
 # =========================================================
 
 st.dataframe(

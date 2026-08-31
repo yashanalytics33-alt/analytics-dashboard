@@ -815,3 +815,149 @@ with chart_col2:
             "No renewed subscriptions for the selected filters."
         )
 
+
+
+
+# =========================================================
+# CHARTS
+# NEW & RENEW SUBSCRIPTIONS BY PARTNER
+# =========================================================
+
+import plotly.express as px
+
+
+# =========================================================
+# NEW SUBSCRIPTIONS BY PARTNER
+# =========================================================
+
+new_partner_df = filtered_df[
+    filtered_df["transactionpurpose"] == "NEW"
+].copy()
+
+
+new_partner = (
+    new_partner_df
+    .groupby("Partner")
+    .size()
+    .reset_index(name="Subscriptions")
+    .sort_values("Subscriptions", ascending=False)
+)
+
+
+if not new_partner.empty:
+
+    fig_new_partner = px.pie(
+        new_partner,
+        names="Partner",
+        values="Subscriptions",
+        title="New Subscriptions Contribution % By Partner"
+    )
+
+    fig_new_partner.update_traces(
+        texttemplate="%{percent:.1%}",
+        textposition="inside",
+        hovertemplate=(
+            "<b>%{label}</b><br>"
+            "Subscriptions: %{value:,}<br>"
+            "Contribution: %{percent:.1%}"
+            "<extra></extra>"
+        ),
+        sort=False
+    )
+
+    fig_new_partner.update_layout(
+        legend_title_text="Partner",
+        margin=dict(l=10, r=10, t=50, b=10)
+    )
+
+else:
+
+    fig_new_partner = None
+
+
+# =========================================================
+# RENEWED SUBSCRIPTIONS BY PARTNER
+# =========================================================
+
+renew_partner_df = filtered_df[
+    filtered_df["transactionpurpose"] == "RENEW"
+].copy()
+
+
+renew_partner = (
+    renew_partner_df
+    .groupby("Partner")
+    .size()
+    .reset_index(name="Subscriptions")
+    .sort_values("Subscriptions", ascending=False)
+)
+
+
+if not renew_partner.empty:
+
+    fig_renew_partner = px.pie(
+        renew_partner,
+        names="Partner",
+        values="Subscriptions",
+        title="Renewed Subscriptions Contribution % By Partner"
+    )
+
+    fig_renew_partner.update_traces(
+        texttemplate="%{percent:.1%}",
+        textposition="inside",
+        hovertemplate=(
+            "<b>%{label}</b><br>"
+            "Subscriptions: %{value:,}<br>"
+            "Contribution: %{percent:.1%}"
+            "<extra></extra>"
+        ),
+        sort=False
+    )
+
+    fig_renew_partner.update_layout(
+        legend_title_text="Partner",
+        margin=dict(l=10, r=10, t=50, b=10)
+    )
+
+else:
+
+    fig_renew_partner = None
+
+
+# =========================================================
+# DISPLAY BOTH CHARTS
+# =========================================================
+
+chart_col1, chart_col2 = st.columns(2)
+
+
+with chart_col1:
+
+    if fig_new_partner is not None:
+
+        st.plotly_chart(
+            fig_new_partner,
+            use_container_width=True
+        )
+
+    else:
+
+        st.info(
+            "No new subscriptions for the selected filters."
+        )
+
+
+with chart_col2:
+
+    if fig_renew_partner is not None:
+
+        st.plotly_chart(
+            fig_renew_partner,
+            use_container_width=True
+        )
+
+    else:
+
+        st.info(
+            "No renewed subscriptions for the selected filters."
+        )

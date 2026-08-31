@@ -1,24 +1,33 @@
 import streamlit as st
-import pandas as pd
 from streamlit_gsheets import GSheetsConnection
+import pandas as pd
+import plotly.express as px
 
 
 # =========================================================
-# PAGE CONFIG
+# PAGE SETTINGS
 # =========================================================
 
 st.set_page_config(
-    page_title="Payment Dashboard",
+    page_title="Payment Report",
     page_icon="💳",
     layout="wide"
 )
 
 
 # =========================================================
-# TITLE
+# HEADER
 # =========================================================
 
-st.title("💳 Payment Dashboard")
+header_col1, header_col2 = st.columns([6, 1])
+
+with header_col1:
+    st.title("💳 Payment Report")
+
+with header_col2:
+    if st.button("🔄 Refresh"):
+        st.cache_data.clear()
+        st.rerun()
 
 
 # =========================================================
@@ -32,12 +41,11 @@ conn = st.connection(
 
 
 # =========================================================
-# READ PAYMENT SHEET
+# LOAD DATA
 # =========================================================
 
-payment_df = conn.read(
-    spreadsheet="https://docs.google.com/spreadsheets/d/1jin_QZwN7G1nwXebnWvs6rcged5xnggxefghpjehlfc/edit",
-    worksheet="payment report",
+df = conn.read(
+    worksheet="payment report(combined)",
     ttl=600
 )
 
@@ -46,27 +54,83 @@ payment_df = conn.read(
 # CLEAN COLUMN NAMES
 # =========================================================
 
-payment_df.columns = (
-    payment_df.columns
-    .str.strip()
-    .str.replace(" ", "_")
-)
+df.columns = df.columns.str.strip()
 
 
 # =========================================================
-# SUCCESS
+# BASIC CLEANING
 # =========================================================
 
-st.success("Payment data loaded successfully ✅")
+text_columns = [
+    "App",
+    "Month",
+    "Partner Type",
+    "Partner",
+    "Agency",
+    "Campaign",
+    "gwprovider",
+    "devicetype",
+    "Week",
+    "currency",
+    "transactionpurpose"
+]
 
-st.write(f"**Total rows:** {len(payment_df):,}")
+for column in text_columns:
+
+    if column in df.columns:
+
+        df[column] = (
+            df[column]
+            .fillna("")
+            .astype(str)
+            .str.strip()
+        )
 
 
 # =========================================================
-# DATA
+# STANDARDIZE TEXT
 # =========================================================
 
-st.dataframe(
-    payment_df,
-    use_container_width=True
-)
+if "currency" in df.columns:
+    df["currency"] = (
+        df["currency"]
+        .str.upper()
+    )
+
+
+if "transactionpurpose" in df.columns:
+    df["transactionpurpose"] = (
+        df["transactionpurpose"]
+        .str.upper()
+    )
+
+
+# =========================================================
+# PLAN
+# =========================================================
+
+if "Plan" in df.columns:
+
+    df["Plan"] = pd.to_numeric(
+        df["Plan"],
+        errors="coerce"
+    ).fillna(0)
+
+
+# =========================================================
+# CREATED DATE
+# =========================================================
+
+if "created" in df.columns:
+
+    df["created"] = pd.to_datetime(
+        df["created"],
+        errors="coerce"
+    )
+
+
+# =========================================================
+# FILTER SECTION
+# =========================================================
+
+st.subheader("Filters")

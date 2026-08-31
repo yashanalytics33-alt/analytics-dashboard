@@ -304,7 +304,25 @@ def get_context_df(exclude=None):
             ]
 
 
+# -----------------------------------------------------
+# TYPE
+# Uses TRANSACTIONPURPOSE column
+# -----------------------------------------------------
 
+if exclude != "Type":
+
+    selected = st.session_state.get(
+        "type_filter",
+        []
+    )
+
+    if selected:
+
+        temp_df = temp_df[
+            temp_df["transactionpurpose"].isin(selected)
+        ]
+
+return temp_df
 
 # =========================================================
 # ROW 1
@@ -510,7 +528,29 @@ with col8:
         placeholder="All"
     )
 
+# =========================================================
+# TYPE
+# Uses transactionpurpose column
+# =========================================================
 
+with col9:
+
+    options = sorted(
+        [
+            x
+            for x in get_context_df("Type")["transactionpurpose"]
+            .dropna()
+            .unique()
+            if x != ""
+        ]
+    )
+
+    st.multiselect(
+        "Type",
+        options=options,
+        key="type_filter",
+        placeholder="All"
+    )
 
 
 # =========================================================

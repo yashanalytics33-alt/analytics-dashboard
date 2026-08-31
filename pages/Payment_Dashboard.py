@@ -8,20 +8,20 @@ import pandas as pd
 # =========================================================
 
 st.set_page_config(
-    page_title="Payment Report",
+    page_title="Payment Dashboard",
     page_icon="💳",
     layout="wide"
 )
 
 
 # =========================================================
-# HEADER + REFRESH BUTTON
+# HEADER + REFRESH
 # =========================================================
 
 header_col1, header_col2 = st.columns([6, 1])
 
 with header_col1:
-    st.title("💳 Payment Report")
+    st.title("💳 Payment Dashboard")
 
 with header_col2:
     if st.button("🔄 Refresh"):
@@ -40,7 +40,7 @@ conn = st.connection(
 
 
 # =========================================================
-# LOAD PAYMENT DATA
+# LOAD DATA
 # =========================================================
 
 df = conn.read(
@@ -95,15 +95,20 @@ for column in text_columns:
 # STANDARDIZE TEXT
 # =========================================================
 
-df["currency"] = (
-    df["currency"]
-    .str.upper()
-)
+if "currency" in df.columns:
 
-df["transactionpurpose"] = (
-    df["transactionpurpose"]
-    .str.upper()
-)
+    df["currency"] = (
+        df["currency"]
+        .str.upper()
+    )
+
+
+if "transactionpurpose" in df.columns:
+
+    df["transactionpurpose"] = (
+        df["transactionpurpose"]
+        .str.upper()
+    )
 
 
 # =========================================================
@@ -115,13 +120,9 @@ df["Plan"] = pd.to_numeric(
     errors="coerce"
 ).fillna(0)
 
+
 df["amount"] = pd.to_numeric(
     df["amount"],
-    errors="coerce"
-).fillna(0)
-
-df["Net Revenue"] = pd.to_numeric(
-    df["Net Revenue"],
     errors="coerce"
 ).fillna(0)
 
@@ -137,8 +138,7 @@ df["created"] = pd.to_datetime(
 
 
 # =========================================================
-# YEAR
-# YEAR IS DERIVED FROM CREATED
+# YEAR FROM CREATED
 # =========================================================
 
 df["Year"] = df["created"].dt.year
@@ -153,13 +153,11 @@ st.subheader("Filters")
 
 # =========================================================
 # HELPER FUNCTION
-# Applies all OTHER selected filters
 # =========================================================
 
 def get_context_df(exclude=None):
 
     temp_df = df.copy()
-
 
     # -----------------------------------------------------
     # APP
@@ -199,7 +197,7 @@ def get_context_df(exclude=None):
 
     # -----------------------------------------------------
     # DATE
-    # CREATED DATE ONLY
+    # CREATED ONLY
     # -----------------------------------------------------
 
     if exclude != "Date":
@@ -308,7 +306,7 @@ def get_context_df(exclude=None):
 
     # -----------------------------------------------------
     # CREATED
-    # Uses CREATED column
+    # CREATED COLUMN ONLY
     # -----------------------------------------------------
 
     if exclude != "created":
@@ -348,19 +346,19 @@ def get_context_df(exclude=None):
 
 # =========================================================
 # ROW 1
-# App | Year | Date | Month | Week
+# APP | YEAR | DATE | MONTH | WEEK
 # =========================================================
 
 col1, col2, col3, col4, col5 = st.columns(5)
 
 
-# ---------------------------------------------------------
+# =========================================================
 # APP
-# ---------------------------------------------------------
+# =========================================================
 
 with col1:
 
-    app_options = sorted(
+    options = sorted(
         [
             x
             for x in get_context_df("App")["App"]
@@ -372,19 +370,19 @@ with col1:
 
     st.multiselect(
         "App",
-        options=app_options,
+        options=options,
         key="app_filter",
         placeholder="All"
     )
 
 
-# ---------------------------------------------------------
+# =========================================================
 # YEAR
-# ---------------------------------------------------------
+# =========================================================
 
 with col2:
 
-    year_options = sorted(
+    options = sorted(
         get_context_df("Year")["Year"]
         .dropna()
         .astype(int)
@@ -395,21 +393,19 @@ with col2:
 
     st.multiselect(
         "Year",
-        options=year_options,
+        options=options,
         key="year_filter",
         placeholder="All"
     )
 
 
-# ---------------------------------------------------------
+# =========================================================
 # DATE
-# Uses CREATED
-# Latest date first
-# ---------------------------------------------------------
+# =========================================================
 
 with col3:
 
-    date_options = sorted(
+    options = sorted(
         get_context_df("Date")["created"]
         .dropna()
         .dt.date
@@ -420,20 +416,20 @@ with col3:
 
     st.multiselect(
         "Date",
-        options=date_options,
+        options=options,
         key="date_filter",
         format_func=lambda x: x.strftime("%d %b %Y"),
         placeholder="All"
     )
 
 
-# ---------------------------------------------------------
+# =========================================================
 # MONTH
-# ---------------------------------------------------------
+# =========================================================
 
 with col4:
 
-    month_options = sorted(
+    options = sorted(
         [
             x
             for x in get_context_df("Month")["Month"]
@@ -445,19 +441,19 @@ with col4:
 
     st.multiselect(
         "Month",
-        options=month_options,
+        options=options,
         key="month_filter",
         placeholder="All"
     )
 
 
-# ---------------------------------------------------------
+# =========================================================
 # WEEK
-# ---------------------------------------------------------
+# =========================================================
 
 with col5:
 
-    week_options = sorted(
+    options = sorted(
         [
             x
             for x in get_context_df("Week")["Week"]
@@ -469,7 +465,7 @@ with col5:
 
     st.multiselect(
         "Week",
-        options=week_options,
+        options=options,
         key="week_filter",
         placeholder="All"
     )
@@ -477,19 +473,19 @@ with col5:
 
 # =========================================================
 # ROW 2
-# Currency | Plan | Gwprovider | created | Type
+# CURRENCY | PLAN | GWPROVIDER | CREATED | TYPE
 # =========================================================
 
 col6, col7, col8, col9, col10 = st.columns(5)
 
 
-# ---------------------------------------------------------
+# =========================================================
 # CURRENCY
-# ---------------------------------------------------------
+# =========================================================
 
 with col6:
 
-    currency_options = sorted(
+    options = sorted(
         [
             x
             for x in get_context_df("Currency")["currency"]
@@ -501,19 +497,19 @@ with col6:
 
     st.multiselect(
         "Currency",
-        options=currency_options,
+        options=options,
         key="currency_filter",
         placeholder="All"
     )
 
 
-# ---------------------------------------------------------
+# =========================================================
 # PLAN
-# ---------------------------------------------------------
+# =========================================================
 
 with col7:
 
-    plan_options = sorted(
+    options = sorted(
         get_context_df("Plan")["Plan"]
         .dropna()
         .unique()
@@ -522,20 +518,20 @@ with col7:
 
     st.multiselect(
         "Plan",
-        options=plan_options,
+        options=options,
         key="plan_filter",
         format_func=lambda x: f"{x:g}",
         placeholder="All"
     )
 
 
-# ---------------------------------------------------------
+# =========================================================
 # GWPROVIDER
-# ---------------------------------------------------------
+# =========================================================
 
 with col8:
 
-    gwprovider_options = sorted(
+    options = sorted(
         [
             x
             for x in get_context_df("Gwprovider")["gwprovider"]
@@ -547,20 +543,19 @@ with col8:
 
     st.multiselect(
         "Gwprovider",
-        options=gwprovider_options,
+        options=options,
         key="gwprovider_filter",
         placeholder="All"
     )
 
 
-# ---------------------------------------------------------
+# =========================================================
 # CREATED
-# Uses CREATED column
-# ---------------------------------------------------------
+# =========================================================
 
 with col9:
 
-    created_options = sorted(
+    options = sorted(
         get_context_df("created")["created"]
         .dropna()
         .dt.date
@@ -571,20 +566,20 @@ with col9:
 
     st.multiselect(
         "created",
-        options=created_options,
+        options=options,
         key="created_filter",
         format_func=lambda x: x.strftime("%d %b %Y"),
         placeholder="All"
     )
 
 
-# ---------------------------------------------------------
+# =========================================================
 # TYPE
-# ---------------------------------------------------------
+# =========================================================
 
 with col10:
 
-    type_options = sorted(
+    options = sorted(
         [
             x
             for x in get_context_df("Type")["Type"]
@@ -596,7 +591,7 @@ with col10:
 
     st.multiselect(
         "Type",
-        options=type_options,
+        options=options,
         key="type_filter",
         placeholder="All"
     )
@@ -610,6 +605,150 @@ filtered_df = get_context_df()
 
 
 # =========================================================
+# KPI CALCULATIONS
+# =========================================================
+
+# Total subscriptions
+
+total_subscriptions = len(filtered_df)
+
+
+# New subscriptions
+
+new_subscriptions = (
+    filtered_df["transactionpurpose"] == "NEW"
+).sum()
+
+
+# Renew subscriptions
+
+renew_subscriptions = (
+    filtered_df["transactionpurpose"] == "RENEW"
+).sum()
+
+
+# =========================================================
+# REVENUE
+# INR GROSS
+# =========================================================
+
+inr_data = filtered_df[
+    filtered_df["currency"] == "INR"
+]
+
+
+total_revenue = inr_data["Plan"].sum()
+
+
+# =========================================================
+# ACTIVE / EXPIRED
+# =========================================================
+
+active_subscribers = 0
+expired_subscribers = 0
+
+if "Status" in filtered_df.columns:
+
+    active_subscribers = (
+        filtered_df["Status"]
+        .astype(str)
+        .str.upper()
+        .eq("ACTIVE")
+        .sum()
+    )
+
+    expired_subscribers = (
+        filtered_df["Status"]
+        .astype(str)
+        .str.upper()
+        .eq("EXPIRED")
+        .sum()
+    )
+
+
+# =========================================================
+# KPI SECTION
+# =========================================================
+
+st.divider()
+
+
+kpi1, kpi2, kpi3, kpi4, kpi5, kpi6 = st.columns(6)
+
+
+# ---------------------------------------------------------
+# TOTAL REVENUE
+# ---------------------------------------------------------
+
+with kpi1:
+
+    st.metric(
+        "Total Revenue (INR) (Gross)",
+        f"₹{total_revenue:,.0f}"
+    )
+
+
+# ---------------------------------------------------------
+# TOTAL SUBSCRIPTIONS
+# ---------------------------------------------------------
+
+with kpi2:
+
+    st.metric(
+        "Total Subscriptions",
+        f"{total_subscriptions:,}"
+    )
+
+
+# ---------------------------------------------------------
+# NEW SUBSCRIPTIONS
+# ---------------------------------------------------------
+
+with kpi3:
+
+    st.metric(
+        "New Subscriptions",
+        f"{new_subscriptions:,}"
+    )
+
+
+# ---------------------------------------------------------
+# RENEW SUBSCRIPTIONS
+# ---------------------------------------------------------
+
+with kpi4:
+
+    st.metric(
+        "Renewed Subscriptions",
+        f"{renew_subscriptions:,}"
+    )
+
+
+# ---------------------------------------------------------
+# ACTIVE
+# ---------------------------------------------------------
+
+with kpi5:
+
+    st.metric(
+        "Active Subscribers",
+        f"{active_subscribers:,}"
+    )
+
+
+# ---------------------------------------------------------
+# EXPIRED
+# ---------------------------------------------------------
+
+with kpi6:
+
+    st.metric(
+        "Expired Subscribers",
+        f"{expired_subscribers:,}"
+    )
+
+
+# =========================================================
 # FILTERED ROW COUNT
 # =========================================================
 
@@ -617,8 +756,4 @@ st.divider()
 
 st.write(
     f"**Filtered rows:** {len(filtered_df):,}"
-)
-
-st.success(
-    "Payment Report filters are working successfully ✅"
 )

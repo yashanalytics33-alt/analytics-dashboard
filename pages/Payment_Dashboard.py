@@ -1,10 +1,21 @@
 import streamlit as st
-from streamlit_gsheets import GSheetsConnection
 import pandas as pd
+from streamlit_gsheets import GSheetsConnection
 
 
 # =========================================================
-# PAYMENT DASHBOARD
+# PAGE CONFIG
+# =========================================================
+
+st.set_page_config(
+    page_title="Payment Dashboard",
+    page_icon="💳",
+    layout="wide"
+)
+
+
+# =========================================================
+# TITLE
 # =========================================================
 
 st.title("💳 Payment Dashboard")
@@ -15,13 +26,13 @@ st.title("💳 Payment Dashboard")
 # =========================================================
 
 conn = st.connection(
-    "gsheets",
+    "payment_gsheets",
     type=GSheetsConnection
 )
 
 
 # =========================================================
-# READ PAYMENT REPORT
+# READ PAYMENT DATA
 # =========================================================
 
 payment_df = conn.read(
@@ -35,22 +46,20 @@ payment_df = conn.read(
 # CLEAN COLUMN NAMES
 # =========================================================
 
-payment_df.columns = payment_df.columns.str.strip()
+payment_df.columns = (
+    payment_df.columns
+    .str.strip()
+    .str.replace(" ", "_")
+)
 
 
 # =========================================================
-# TITLE / SUCCESS
+# BASIC CHECK
 # =========================================================
 
-st.success("Payment data loaded successfully!")
+st.success("Payment data loaded successfully ✅")
 
-
-# =========================================================
-# BASIC INFORMATION
-# =========================================================
-
-st.write(f"**Total Rows:** {len(payment_df):,}")
-st.write(f"**Total Columns:** {len(payment_df.columns):,}")
+st.write(f"**Total rows:** {len(payment_df):,}")
 
 
 # =========================================================
@@ -59,6 +68,5 @@ st.write(f"**Total Columns:** {len(payment_df.columns):,}")
 
 st.dataframe(
     payment_df,
-    use_container_width=True,
-    hide_index=True
+    use_container_width=True
 )

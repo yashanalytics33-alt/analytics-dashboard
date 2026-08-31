@@ -304,26 +304,17 @@ def get_context_df(exclude=None):
             ]
 
 
-
-    # -----------------------------------------------------
-    # TYPE
-    # -----------------------------------------------------
-
-    if exclude != "Type":
-
-        selected = st.session_state.get(
-            "type_filter",
-            []
-        )
-
-        if selected:
-
-            temp_df = temp_df[
-                temp_df["Type"].isin(selected)
-            ]
-
-
-    return temp_df
+# -----------------------------------------------------
+# TYPE
+# -----------------------------------------------------
+if exclude != "Type":
+    selected = st.session_state.get(
+        "type_filter", []
+    )
+    if selected:
+        temp_df = temp_df[
+            temp_df["Type"].isin(selected)
+        ]
 
 
 # =========================================================
@@ -532,30 +523,23 @@ with col8:
 
 
 
-# =========================================================
-# TYPE
-# =========================================================
+with col9:
 
-with col10:
-
-    options = sorted(
+    type_options = sorted(
         [
-            x
-            for x in get_context_df("Type")["Type"]
+            x for x in get_context_df("Type")["Type"]
             .dropna()
             .unique()
-            if x != ""
+            if str(x).strip() != ""
         ]
     )
 
-    st.multiselect(
+    type_filter = st.multiselect(
         "Type",
-        options=options,
+        options=type_options,
         key="type_filter",
         placeholder="All"
     )
-
-
 # =========================================================
 # FINAL FILTERED DATA
 # =========================================================

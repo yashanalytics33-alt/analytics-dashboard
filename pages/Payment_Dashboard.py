@@ -751,3 +751,110 @@ st.divider()
 st.write(
     f"**Filtered rows:** {len(filtered_df):,}"
 )
+
+# =========================================================
+# AVERAGE MONTHLY / DAILY KPIs
+# =========================================================
+
+# Remove rows without created date
+analysis_df = filtered_df.dropna(subset=["created"]).copy()
+
+if len(analysis_df) > 0:
+
+    # -----------------------------------------------------
+    # MONTHLY
+    # -----------------------------------------------------
+
+    analysis_df["Month_Date"] = (
+        analysis_df["created"]
+        .dt.to_period("M")
+    )
+
+    monthly_revenue = (
+        analysis_df[
+            analysis_df["currency"] == "INR"
+        ]
+        .groupby("Month_Date")["Plan"]
+        .sum()
+    )
+
+    monthly_total = (
+        analysis_df
+        .groupby("Month_Date")
+        .size()
+    )
+
+    monthly_new = (
+        analysis_df[
+            analysis_df["transactionpurpose"] == "NEW"
+        ]
+        .groupby("Month_Date")
+        .size()
+    )
+
+    monthly_renew = (
+        analysis_df[
+            analysis_df["transactionpurpose"] == "RENEW"
+        ]
+        .groupby("Month_Date")
+        .size()
+    )
+
+    avg_monthly_revenue = monthly_revenue.mean() if len(monthly_revenue) else 0
+    avg_monthly_total = monthly_total.mean() if len(monthly_total) else 0
+    avg_monthly_new = monthly_new.mean() if len(monthly_new) else 0
+    avg_monthly_renew = monthly_renew.mean() if len(monthly_renew) else 0
+
+
+    # -----------------------------------------------------
+    # DAILY
+    # -----------------------------------------------------
+
+    analysis_df["Date"] = analysis_df["created"].dt.date
+
+    daily_revenue = (
+        analysis_df[
+            analysis_df["currency"] == "INR"
+        ]
+        .groupby("Date")["Plan"]
+        .sum()
+    )
+
+    daily_total = (
+        analysis_df
+        .groupby("Date")
+        .size()
+    )
+
+    daily_new = (
+        analysis_df[
+            analysis_df["transactionpurpose"] == "NEW"
+        ]
+        .groupby("Date")
+        .size()
+    )
+
+    daily_renew = (
+        analysis_df[
+            analysis_df["transactionpurpose"] == "RENEW"
+        ]
+        .groupby("Date")
+        .size()
+    )
+
+    avg_daily_revenue = daily_revenue.mean() if len(daily_revenue) else 0
+    avg_daily_total = daily_total.mean() if len(daily_total) else 0
+    avg_daily_new = daily_new.mean() if len(daily_new) else 0
+    avg_daily_renew = daily_renew.mean() if len(daily_renew) else 0
+
+else:
+
+    avg_monthly_revenue = 0
+    avg_monthly_total = 0
+    avg_monthly_new = 0
+    avg_monthly_renew = 0
+
+    avg_daily_revenue = 0
+    avg_daily_total = 0
+    avg_daily_new = 0
+    avg_daily_renew = 0

@@ -597,30 +597,68 @@ total_revenue = inr_data["Plan"].sum()
 
 
 # =========================================================
-# ACTIVE / EXPIRED
+# ACTIVE / EXPIRED - DISTINCT INITIATED BY
 # =========================================================
 
 active_subscribers = 0
 expired_subscribers = 0
 
-if "Status" in filtered_df.columns:
+if "Status" in filtered_df.columns and "initiatedby" in filtered_df.columns:
 
-    active_subscribers = (
-        filtered_df["Status"]
+    status_df = filtered_df[
+        ["initiatedby", "Status"]
+    ].copy()
+
+    # Clean values
+    status_df["initiatedby"] = (
+        status_df["initiatedby"]
+        .fillna("")
         .astype(str)
-        .str.upper()
-        .eq("ACTIVE")
-        .sum()
+        .str.strip()
     )
 
-    expired_subscribers = (
-        filtered_df["Status"]
+    status_df["Status"] = (
+        status_df["Status"]
+        .fillna("")
         .astype(str)
         .str.upper()
-        .eq("EXPIRED")
-        .sum()
+        .str.strip()
     )
 
+    # Remove blank initiatedby
+    status_df = status_df[
+        status_df["initiatedby"] != ""
+    ]
+
+    # -----------------------------------------------------
+    # ACTIVE
+    # Anyone having at least one ACTIVE transaction
+    # -----------------------------------------------------
+
+    active_users = set(
+        status_df.loc[
+            status_df["Status"] == "ACTIVE",
+            "initiatedby"
+        ]
+    )
+
+    active_subscribers = len(active_users)
+
+    # -----------------------------------------------------
+    # EXPIRED
+    # Expired only if they are NOT active
+    # -----------------------------------------------------
+
+    expired_users = set(
+        status_df.loc[
+            status_df["Status"] == "EXPIRED",
+            "initiatedby"
+        ]
+    )
+
+    expired_users = expired_users - active_users
+
+    expired_subscribers = len(expired_users)
 
 # =========================================================
 # KPI SECTION

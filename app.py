@@ -972,3 +972,132 @@ with pt_col2:
     else:
 
         st.info("No renewed subscriptions.")
+
+# =========================================================
+# AGENCY CHARTS
+# =========================================================
+
+
+# ---------------------------------------------------------
+# NEW SUBSCRIPTIONS BY AGENCY
+# ---------------------------------------------------------
+
+agency_new = filtered_df[
+    filtered_df["transactionpurpose"] == "NEW"
+]
+
+agency_new = (
+    agency_new
+    .groupby("Agency")
+    .size()
+    .reset_index(name="Subscriptions")
+)
+
+if len(agency_new) > 0:
+
+    fig_agency_new = px.pie(
+        agency_new,
+        names="Agency",
+        values="Subscriptions",
+        title="New Subscriptions Contribution % By Agencies"
+    )
+
+    fig_agency_new.update_traces(
+        texttemplate="%{percent:.1%}",
+        textposition="inside",
+        hovertemplate=(
+            "<b>%{label}</b><br>"
+            "Subscriptions: %{value:,}<br>"
+            "Contribution: %{percent:.1%}"
+            "<extra></extra>"
+        )
+    )
+
+    fig_agency_new.update_layout(
+        legend_title_text="Agency",
+        margin=dict(l=10, r=10, t=50, b=10)
+    )
+
+else:
+
+    fig_agency_new = None
+
+
+# ---------------------------------------------------------
+# RENEWED SUBSCRIPTIONS BY AGENCY
+# ---------------------------------------------------------
+
+agency_renew = filtered_df[
+    filtered_df["transactionpurpose"] == "RENEW"
+]
+
+agency_renew = (
+    agency_renew
+    .groupby("Agency")
+    .size()
+    .reset_index(name="Subscriptions")
+)
+
+if len(agency_renew) > 0:
+
+    fig_agency_renew = px.pie(
+        agency_renew,
+        names="Agency",
+        values="Subscriptions",
+        title="Renewed Subscriptions Contribution % By Agency"
+    )
+
+    fig_agency_renew.update_traces(
+        texttemplate="%{percent:.1%}",
+        textposition="inside",
+        hovertemplate=(
+            "<b>%{label}</b><br>"
+            "Subscriptions: %{value:,}<br>"
+            "Contribution: %{percent:.1%}"
+            "<extra></extra>"
+        )
+    )
+
+    fig_agency_renew.update_layout(
+        legend_title_text="Agency",
+        margin=dict(l=10, r=10, t=50, b=10)
+    )
+
+else:
+
+    fig_agency_renew = None
+
+
+# =========================================================
+# DISPLAY AGENCY CHARTS
+# =========================================================
+
+agency_col1, agency_col2 = st.columns(2)
+
+
+with agency_col1:
+
+    if fig_agency_new is not None:
+
+        st.plotly_chart(
+            fig_agency_new,
+            use_container_width=True
+        )
+
+    else:
+
+        st.info("No new subscriptions.")
+
+
+with agency_col2:
+
+    if fig_agency_renew is not None:
+
+        st.plotly_chart(
+            fig_agency_renew,
+            use_container_width=True
+        )
+
+    else:
+
+        st.info("No renewed subscriptions.")
